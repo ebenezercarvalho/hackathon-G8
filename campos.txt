@@ -1,0 +1,11 @@
+empresa
+nro_voo
+cod_autorizacao
+cod_tipo
+aerodromo_origem
+aerodromo_destino
+partida_prevista
+partida_real
+chegada_prevista
+chegada_real
+situacao_voo
