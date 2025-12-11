@@ -1,42 +1,31 @@
 package br.com.alura.flightontime.service;
 
 import br.com.alura.flightontime.dto.VooDTO;
+import br.com.alura.flightontime.dto.PrevisaoResponseDTO; // ⬅️ Importe o DTO de Resposta
 import org.springframework.stereotype.Service;
 
-@Service
+@Service // Marca esta classe como um componente Spring de Serviço.
 public class VooService {
 
-    // 1. Não usamos 'final' para evitar o erro de compilação.
-    private boolean modeloCarregado;
+    /**
+     * Método que será chamado pelo Controller para fazer a previsão.
+     * Retorna o DTO de Resposta com a Previsão e Probabilidade.
+     */
+    // ⬇️ Mude o tipo de retorno de 'String' para 'PrevisaoResponseDTO' ⬇️
+    public PrevisaoResponseDTO preverAtraso(VooDTO dto) {
 
-    // NOVO CONSTRUTOR: Executa a lógica de inicialização.
-    public VooService() {
-        try {
-            // Lógica de Inicialização (Simula o carregamento do modelo)
-            System.out.println("--- INICIALIZAÇÃO DO ML VIA CONSTRUTOR ---");
-            this.modeloCarregado = true; // Define como TRUE
-            System.out.println("Modelo de Machine Learning carregado com SUCESSO! (Simulação)");
-        } catch (Exception e) {
-            System.err.println("ERRO INESPERADO NA INICIALIZAÇÃO: " + e.getMessage());
-            this.modeloCarregado = false;
-        }
-        System.out.println("---------------------------");
-    }
+        // -----------------------------------------------------------
+        // 🚨 A LÓGICA DE INTEGRAÇÃO COM O MODELO DE DATA SCIENCE ENTRA AQUI 🚨
+        // -----------------------------------------------------------
 
-    // Método principal de predição
-    public String preverAtraso(VooDTO dto) {
-        // Verifica o estado da variável inicializada no construtor
-        if (!modeloCarregado) {
-            return "Erro Interno: O modelo de predição não está disponível.";
-        }
+        // Por enquanto, vamos SIMULAR o resultado da previsão:
+        double probabilidadeAtraso = 0.78; // 78% de chance de atrasar (Exemplo)
+        String statusPrevisao = "Atrasado";
 
-        System.out.println("Dados de entrada recebidos: " + dto.toString());
+        // -----------------------------------------------------------
 
-        // Simulação de Regra de Negócio:
-        if (dto.getDistancia() > 1500 && dto.getMes().equalsIgnoreCase("DEZ")) {
-            return "ALTA PROBABILIDADE de atraso (89% de chance).";
-        } else {
-            return "BAIXA PROBABILIDADE de atraso (8% de chance).";
-        }
+        // ⬇️ Retorna o objeto DTO que será convertido em JSON ⬇️
+        // Usamos o construtor do Lombok que criamos (Graças ao @AllArgsConstructor)
+        return new PrevisaoResponseDTO(statusPrevisao, probabilidadeAtraso);
     }
 }

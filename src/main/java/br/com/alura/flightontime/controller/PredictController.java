@@ -1,30 +1,33 @@
 package br.com.alura.flightontime.controller;
 
-import br.com.alura.flightontime.dto.VooDTO; // Importe seu DTO!
-import br.com.alura.flightontime.service.VooService; // Importe o Service!
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import br.com.alura.flightontime.dto.VooDTO;
+import br.com.alura.flightontime.dto.PrevisaoResponseDTO; // ⬅️ IMPORTANTE
+import br.com.alura.flightontime.service.VooService;
+// ... demais imports ...
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/flights")
-public class PredictController {
+@RequestMapping("/predict") // Mantenha o mapping ajustado
+public class PredictController { // Ou VooController
 
-    // 1. Injeção de Dependência
     private final VooService vooService;
 
-    @Autowired // Opcional a partir do Spring Boot 2.x, mas é boa prática
+    // Construtor
     public PredictController(VooService vooService) {
         this.vooService = vooService;
     }
 
-    // 2. Endpoint /predict
-    @PostMapping("/predict")
-    public ResponseEntity<String> predict(@RequestBody VooDTO vooDTO) {
+    // ⬇️ CORREÇÃO: Altere o tipo de retorno para PrevisaoResponseDTO ⬇️
+    @PostMapping
+    @ResponseStatus(HttpStatus.OK)
+    public PrevisaoResponseDTO predict(@RequestBody @Valid VooDTO vooDTO) {
 
-        // Chamando a lógica de negócio do Service
-        String resultado = vooService.preverAtraso(vooDTO);
+        // CORREÇÃO: A chamada do Service AGORA retorna o DTO correto
+        PrevisaoResponseDTO resultado = vooService.preverAtraso(vooDTO);
 
-        return ResponseEntity.ok(resultado);
+        // ⬇️ Retorne o DTO diretamente! O Spring cuida de convertê-lo para JSON ⬇️
+        return resultado;
     }
 }
