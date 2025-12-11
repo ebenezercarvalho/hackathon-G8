@@ -1,25 +1,30 @@
 package br.com.alura.flightontime.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
+// Lombok: Gera os métodos getter e setter para todos os campos.
+@Getter
+@Setter
+public class VooDTO {
 
-public record VooDTO (
-        @NotBlank(message = "O nome da companhia aérea é obrigatório.")
-        String companhia,
+        // Características do Voo para Predição
 
-        @NotBlank(message = "A origem do vôo é obrigatória.")
-        String origem,
+        private String mes;
+        private String diaDaSemana;
+        private String companhiaAerea;
+        private String aeroportoOrigem;
+        private String aeroportoDestino;
+        private String horaPartida; // Ex: "08:30"
+        private int distancia;
 
-        @NotBlank(message = "O destino do vôo é obrigatório.")
-        String destino,
-
-        @NotNull(message = "A data de partida é obrigatória.")
-        LocalDateTime dataPartida,
-
-        @NotNull(message = "A distância é obrigatória.")
-        @Positive(message = "A distância deve ser maior que 0.")
-        Double distancia) {
+        // Você pode adicionar um método toString() para facilitar o log, se desejar.
+        @Override
+        public String toString() {
+                return "VooDTO{" +
+                        "mes='" + mes + '\'' +
+                        ", companhiaAerea='" + companhiaAerea + '\'' +
+                        ", aeroportoOrigem='" + aeroportoOrigem + '\'' +
+                        '}';
+        }
 }
