@@ -26,7 +26,7 @@ public class Aeroporto {
     @Column(name = "lat")
     private Double latitude;
 
-    @Column(name = "long")
+    @Column(name = "lon")
     private Double longitude;
 
     @Column(name = "country")
