@@ -12,7 +12,5 @@ public record RespostaPrevisaoDTO (
         Double probabilidadeAtraso,
 
         @JsonProperty("timestamp")
-        Timestamp timestamp
-
-) {
+        Timestamp timestamp) {
 }

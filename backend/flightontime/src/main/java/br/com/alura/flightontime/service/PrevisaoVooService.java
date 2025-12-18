@@ -37,9 +37,9 @@ public class PrevisaoVooService {
         }
 
         return new RequisicaoPrevisaoVooDTO(
-                vooDTO.origem(),
-                vooDTO.destino(),
-                vooDTO.companhia(),
+                vooDTO.codigoIcaoVooOrigem(),
+                vooDTO.codigoIcaoVooDestino(),
+                vooDTO.codigoIcaoCompanhiaAerea(),
                 definirPeriodo(vooDTO.dataPartida().getHour()),
                 vooDTO.dataPartida().getHour(),
                 vooDTO.dataPartida().getDayOfWeek().getValue(),

@@ -1,23 +1,30 @@
 package br.com.alura.flightontime.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 
-public record VooDTO (
-        @NotBlank(message = "O nome da companhia aérea é obrigatório.")
-        String companhia,
+@Schema(description = "Parâmetros necessários para realizar a previsão de atraso de um voo.")
+public record VooDTO(
+        @Schema(description = "Código ICAO da companhia aérea", example = "GLO")
+        @NotBlank(message = "Companhia aérea é obrigatória.")
+        @Size(min = 3, max = 3, message = "O código ICAO da companhia aérea deve possuir 3 caracteres.")
+        String codigoIcaoCompanhiaAerea,
 
-        @NotBlank(message = "A origem do vôo é obrigatória.")
-        String origem,
+        @Schema(description = "Código ICAO do aeroporto de origem", example = "SBGR")
+        @NotBlank(message = "Origem do vôo é obrigatória.")
+        @Size(min = 4, max = 4, message = "O código ICAO do aeroporto de origem deve possuir 4 caracteres.")
+        String codigoIcaoVooOrigem,
 
-        @NotBlank(message = "O destino do vôo é obrigatório.")
-        String destino,
+        @Schema(description = "Código ICAO do aeroporto de destino", example = "SBGL")
+        @NotBlank(message = "Destino do vôo é obrigatório.")
+        @Size(min = 4, max = 4, message = "O código ICAO do aeroporto de destino deve possuir 4 caracteres.")
+        String codigoIcaoVooDestino,
 
-        @NotNull(message = "A data de partida é obrigatória.")
-        LocalDateTime dataPartida,
-
-        @NotNull(message = "A distância é obrigatória.")
-        @Positive(message = "A distância deve ser maior que 0.")
-        Double distancia) {
+        @Schema(description = "Data e hora prevista para a partida", example = "2025-12-25T14:30:00")
+        @NotNull(message = "Data de partida é obrigatória.")
+        LocalDateTime dataPartida) {
 }
