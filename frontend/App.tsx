@@ -1,49 +1,53 @@
 import React, { useState } from 'react';
-import { Plane, Calendar, Clock, MapPin, RefreshCw, Activity, ArrowRight } from 'lucide-react';
-import { FlightFormData, PredictionResult } from './types';
-import { BRAZILIAN_AIRPORTS, PERIODS } from './constants';
+import { Plane, Calendar, Clock, MapPin, Activity, ArrowRight, Languages, Loader2 } from 'lucide-react';
+import { FlightFormData, PredictionResult, Language } from './types';
+import { BRAZILIAN_AIRPORTS, BRAZILIAN_AIRLINES } from './constants';
 import { predictFlightDelay } from './services/predictionService';
+import { translations } from './translations';
 import PredictionResultCard from './components/PredictionResult';
 import WeatherPanel from './components/WeatherPanel';
 import ReportGenerator from './components/ReportGenerator';
-import StatsChart from './components/StatsChart';
+import Autocomplete from './components/Autocomplete';
 
 function App() {
+  const [lang, setLang] = useState<Language>('en');
+  const t = translations[lang];
+
   const [loading, setLoading] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [formData, setFormData] = useState<FlightFormData>({
     origin: '',
     destination: '',
+    airline: '',
     date: '',
-    period: '',
     time: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAutocompleteChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleReset = () => {
-    setFormData({
-      origin: '',
-      destination: '',
-      date: '',
-      period: '',
-      time: ''
-    });
+    setFormData({ origin: '', destination: '', airline: '', date: '', time: '' });
     setResult(null);
+    setHasStarted(false);
   };
 
   const handleSubmit = async () => {
-    if (!formData.origin || !formData.destination || !formData.date) {
+    if (!formData.origin || !formData.destination || !formData.date || !formData.airline || !formData.time) {
       alert("Please fill in all required fields.");
       return;
     }
     
+    setHasStarted(true);
     setLoading(true);
+    setResult(null);
+
     try {
       const prediction = await predictFlightDelay(formData);
       setResult(prediction);
@@ -60,211 +64,158 @@ function App() {
       
       {/* Header */}
       <header className="relative w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-lg shadow-[0_0_15px_rgba(6,182,212,0.5)]">
-              <Plane className="text-white transform -rotate-45" size={24} />
+            <div className="p-2 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-lg shadow-lg">
+              <Plane className="text-white transform -rotate-45" size={24} aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">FlightOps <span className="text-cyan-400">Control</span></h1>
-              <p className="text-xs font-mono text-cyan-600 tracking-widest uppercase">Real-time Delay Prediction System</p>
+              <h1 className="text-xl font-black text-white tracking-tight">{t.title}</h1>
+              <p className="text-[10px] font-mono text-cyan-600 tracking-widest uppercase">{t.subtitle}</p>
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono text-slate-500">
-             <span className="flex items-center gap-1"><Activity size={14} className="text-green-500" /> SYSTEM ONLINE</span>
-             <span className="text-slate-700">|</span>
-             <span>V.2.0.4-BETA</span>
+          
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-slate-500 mr-4">
+               <Activity size={12} className="text-green-500" /> {t.systemOnline}
+            </div>
+            <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-full px-3 py-1.5">
+              <Languages size={14} className="text-cyan-500" aria-hidden="true" />
+              <select 
+                value={lang} 
+                onChange={(e) => setLang(e.target.value as Language)}
+                className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer"
+                aria-label="Change language"
+              >
+                <option value="en" className="bg-slate-900">EN</option>
+                <option value="pt" className="bg-slate-900">PT</option>
+                <option value="es" className="bg-slate-900">ES</option>
+              </select>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <main className="max-w-4xl mx-auto px-4 py-12 space-y-12">
+        
+        {/* DATA ENTRY SECTION */}
+        <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 lg:p-10 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500" aria-hidden="true"></div>
           
-          {/* LEFT COLUMN: FORM */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 lg:p-8 shadow-2xl relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500"></div>
+          <div className="grid grid-cols-1 gap-8">
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 text-cyan-400 border-b border-slate-800 pb-2">
+                <MapPin size={18} aria-hidden="true" />
+                <h2 className="text-sm font-bold uppercase tracking-widest">{t.routing}</h2>
+              </div>
               
-              <div className="grid grid-cols-1 gap-6">
-                
-                {/* Route Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-cyan-400 mb-2">
-                    <MapPin size={18} />
-                    <span className="text-xs font-bold uppercase tracking-widest">Flight Route</span>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs text-slate-400 font-mono">ORIGIN AIRPORT</label>
-                      <select 
-                        name="origin" 
-                        value={formData.origin}
-                        onChange={handleInputChange}
-                        className="w-full bg-slate-950 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 transition-all outline-none"
-                      >
-                        <option value="">Select Origin</option>
-                        {BRAZILIAN_AIRPORTS.map(airport => (
-                          <option key={airport.code} value={airport.code}>{airport.code} - {airport.city}</option>
-                        ))}
-                      </select>
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Autocomplete 
+                  label={t.origin}
+                  placeholder={t.searchPlaceholder}
+                  options={BRAZILIAN_AIRPORTS}
+                  value={formData.origin}
+                  onChange={(val) => handleAutocompleteChange('origin', val)}
+                />
+                <Autocomplete 
+                  label={t.destination}
+                  placeholder={t.searchPlaceholder}
+                  options={BRAZILIAN_AIRPORTS}
+                  value={formData.destination}
+                  onChange={(val) => handleAutocompleteChange('destination', val)}
+                />
+              </div>
 
-                    <div className="space-y-2">
-                      <label className="text-xs text-slate-400 font-mono">DESTINATION</label>
-                      <select 
-                        name="destination"
-                        value={formData.destination}
-                        onChange={handleInputChange}
-                        className="w-full bg-slate-950 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 transition-all outline-none"
-                      >
-                         <option value="">Select Dest</option>
-                         {BRAZILIAN_AIRPORTS.map(airport => (
-                          <option key={airport.code} value={airport.code}>{airport.code} - {airport.city}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
+              <Autocomplete 
+                label={t.airline}
+                placeholder={t.searchPlaceholder}
+                options={BRAZILIAN_AIRLINES}
+                value={formData.airline}
+                onChange={(val) => handleAutocompleteChange('airline', val)}
+              />
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 text-cyan-400 border-b border-slate-800 pb-2">
+                <Clock size={18} aria-hidden="true" />
+                <h2 className="text-sm font-bold uppercase tracking-widest">{t.timing}</h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs text-slate-400 font-mono block uppercase">{t.date}</label>
+                  <input 
+                    type="date" 
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-950 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 transition-all outline-none"
+                    aria-required="true"
+                  />
                 </div>
-
-                {/* Timing Section */}
-                <div className="space-y-4 pt-4 border-t border-slate-800">
-                  <div className="flex items-center gap-2 text-cyan-400 mb-2">
-                    <Clock size={18} />
-                    <span className="text-xs font-bold uppercase tracking-widest">Schedule Info</span>
-                  </div>
-
-                  <div className="space-y-2">
-                     <label className="text-xs text-slate-400 font-mono">FLIGHT DATE</label>
-                     <div className="relative">
-                       <input 
-                         type="date" 
-                         name="date"
-                         value={formData.date}
-                         onChange={handleInputChange}
-                         className="w-full bg-slate-950 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 transition-all outline-none pl-10 custom-calendar"
-                       />
-                       <Calendar size={16} className="absolute left-3 top-3.5 text-slate-500" />
-                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs text-slate-400 font-mono">PERIOD OF DAY</label>
-                      <select 
-                        name="period"
-                        value={formData.period}
-                        onChange={handleInputChange}
-                        className="w-full bg-slate-950 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 transition-all outline-none"
-                      >
-                        <option value="">Select Period</option>
-                        {PERIODS.map(p => <option key={p} value={p}>{p}</option>)}
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs text-slate-400 font-mono">DEPARTURE TIME</label>
-                      <input 
-                        type="time" 
-                        name="time"
-                        value={formData.time}
-                        onChange={handleInputChange}
-                        className="w-full bg-slate-950 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 transition-all outline-none"
-                      />
-                    </div>
-                  </div>
+                <div className="space-y-2">
+                  <label className="text-xs text-slate-400 font-mono block uppercase">{t.exactTime}</label>
+                  <input 
+                    type="time" 
+                    name="time"
+                    value={formData.time}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-950 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 outline-none"
+                    aria-required="true"
+                  />
                 </div>
-
-                {/* Actions */}
-                <div className="pt-6 flex gap-3">
-                  <button 
-                    onClick={handleSubmit}
-                    disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded shadow-lg shadow-cyan-900/50 hover:shadow-cyan-500/40 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-sm"
-                  >
-                    {loading ? (
-                      <>Processing <Activity className="animate-spin" size={16} /></>
-                    ) : (
-                      <>Predict Delay <ArrowRight size={16} /></>
-                    )}
-                  </button>
-                  <button 
-                    onClick={handleReset}
-                    className="px-6 py-4 bg-slate-800 border border-slate-700 text-slate-300 font-bold rounded hover:bg-slate-700 hover:text-white transition-all uppercase tracking-wider text-sm"
-                  >
-                    Reset
-                  </button>
-                </div>
-
               </div>
             </div>
-            
-            {/* Helper Stat */}
-            <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
-               <StatsChart />
+
+            <div className="pt-6 flex flex-col sm:flex-row gap-4">
+              <button 
+                onClick={handleSubmit}
+                disabled={loading}
+                className="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 uppercase tracking-wider text-sm"
+              >
+                {loading ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
+                {loading ? t.analyzing : t.predict}
+              </button>
+              <button 
+                onClick={handleReset}
+                className="px-8 py-4 bg-slate-800 border border-slate-700 text-slate-300 font-bold rounded-xl hover:bg-slate-700 transition-all uppercase tracking-wider text-sm"
+              >
+                {t.reset}
+              </button>
             </div>
           </div>
+        </section>
 
-          {/* RIGHT COLUMN: RESULTS */}
-          <div className="lg:col-span-7 space-y-6">
-            {result ? (
-              <div className="animate-fade-in-up space-y-6">
-                
-                {/* Main Prediction Card */}
-                <PredictionResultCard result={result} />
-                
-                {/* Weather Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2">
-                     <WeatherPanel weather={result.weather} />
-                  </div>
-                  
-                  {/* Alternative Airports Recommendation */}
-                  <div className="bg-slate-900 border border-slate-800 rounded-lg p-6">
-                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Alternative Route Suggestions</h3>
-                    <div className="space-y-3">
-                      {result.alternativeAirports.map((airport, idx) => (
-                        <div key={idx} className="flex justify-between items-center p-3 bg-slate-950 rounded border border-slate-800 hover:border-slate-600 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <span className="font-mono font-bold text-cyan-500">{airport.code}</span>
-                            <span className="text-sm text-slate-400">{airport.city}</span>
-                          </div>
-                          <span className="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded">Low Delay Risk</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+        {/* RESULTS SECTION */}
+        <div aria-live="polite" className="transition-all duration-700">
+          {loading && !result && (
+            <div className="flex flex-col items-center justify-center py-20 animate-pulse">
+              <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-4" aria-hidden="true"></div>
+              <h3 className="text-xl font-bold text-cyan-500 uppercase tracking-widest">{t.analyzing}</h3>
+              <p className="text-slate-500 text-sm mt-2">{t.connectingNodes}</p>
+            </div>
+          )}
 
-                  {/* Best Time Recommendation */}
-                  <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 flex flex-col justify-center items-center text-center">
-                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Optimal Departure</h3>
-                    <div className="text-3xl font-mono font-bold text-white mb-1">{result.bestDepartureTime}</div>
-                    <p className="text-xs text-slate-500">Based on historical weather patterns for this date</p>
-                  </div>
-                </div>
+          {hasStarted && !loading && !result && (
+            <div className="text-center py-12 border-2 border-dashed border-slate-800 rounded-2xl">
+              <Loader2 className="mx-auto text-slate-700 mb-4 animate-spin" size={48} aria-hidden="true" />
+              <h3 className="text-lg font-bold text-slate-600 uppercase tracking-widest">{t.waiting}</h3>
+              <p className="text-slate-700 text-sm">{t.waitingDesc}</p>
+            </div>
+          )}
 
-                {/* PDF Report Button */}
-                <ReportGenerator flightData={formData} prediction={result} />
-
-              </div>
-            ) : (
-              <div className="h-full min-h-[500px] flex flex-col items-center justify-center bg-slate-900/30 border border-slate-800/50 rounded-xl border-dashed">
-                <div className="w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                  <Plane className="text-slate-600" size={40} />
-                </div>
-                <h3 className="text-xl font-bold text-slate-500 uppercase tracking-widest mb-2">Ready for Analysis</h3>
-                <p className="text-slate-600 text-center max-w-xs">
-                  Enter flight details in the control panel to generate a delay prediction and weather report.
-                </p>
-              </div>
-            )}
-          </div>
-
+          {result && (
+            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-700">
+              <PredictionResultCard result={result} lang={lang} />
+              <WeatherPanel weather={result.weather} lang={lang} />
+              <ReportGenerator flightData={formData} prediction={result} lang={lang} />
+            </div>
+          )}
         </div>
       </main>
       
-      <footer className="w-full text-center py-8 text-slate-600 text-xs font-mono uppercase tracking-widest">
-        Powered by ML Prediction Engine &bull; FlightOps Control Systems &copy; 2024
+      <footer className="w-full text-center py-12 text-slate-600 text-[10px] font-mono uppercase tracking-[0.2em] opacity-50">
+        &copy; 2024 Aerospace Predictive Systems &bull; Unified Forecast Unit
       </footer>
     </div>
   );

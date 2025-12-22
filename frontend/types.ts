@@ -1,46 +1,54 @@
-export interface Airport {
-  code: string;
-  name: string;
-  city: string;
+
+export type Language = 'en' | 'pt' | 'es';
+
+// Fix: Added missing PeriodOfDay enum required by constants.ts
+export enum PeriodOfDay {
+  Morning = 'Morning',
+  Afternoon = 'Afternoon',
+  Evening = 'Evening',
+  Night = 'Night'
 }
 
-export enum PeriodOfDay {
-  MORNING = "Morning (06:00 - 12:00)",
-  AFTERNOON = "Afternoon (12:00 - 18:00)",
-  EVENING = "Evening (18:00 - 00:00)",
-  NIGHT = "Night (00:00 - 06:00)"
+export interface Airport {
+  nome: string;
+  codigoIata: string;
+  codigoIcao: string;
+}
+
+export interface Airline {
+  nome: string;
+  codigoIata: string;
+  codigoIcao: string;
 }
 
 export interface FlightFormData {
-  origin: string;
-  destination: string;
+  origin: string; 
+  destination: string; 
+  airline: string; 
   date: string;
-  period: string;
   time: string;
 }
 
 export interface WeatherCondition {
   temp: number;
+  minTemp: number;
+  maxTemp: number;
   condition: string;
   windSpeed: number;
   humidity: number;
+  rainProbability: number;
   pressure: number;
   clouds: number;
-  snow: number; // volume in mm
 }
 
+// Fix: Updated PredictionResult to include all fields returned by predictionService.ts
 export interface PredictionResult {
   isDelayed: boolean;
   confidence: number;
-  delayMinutes?: number;
+  delayMinutes: number;
   reason?: string;
   weather: WeatherCondition;
-  historicalDelayRate: number; // percentage
+  historicalDelayRate: number;
   alternativeAirports: Airport[];
   bestDepartureTime: string;
-}
-
-export interface ChartDataPoint {
-  name: string;
-  value: number;
 }
