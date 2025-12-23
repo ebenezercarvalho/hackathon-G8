@@ -1,7 +1,7 @@
 
 export type Language = 'en' | 'pt' | 'es';
 
-// Fix: Added missing PeriodOfDay enum required by constants.ts
+// Fix: Added missing PeriodOfDay enum to resolve the error in constants.ts line 1
 export enum PeriodOfDay {
   Morning = 'Morning',
   Afternoon = 'Afternoon',
@@ -22,9 +22,9 @@ export interface Airline {
 }
 
 export interface FlightFormData {
-  origin: string; 
-  destination: string; 
-  airline: string; 
+  origin: Airport | null; 
+  destination: Airport | null; 
+  airline: Airline | null; 
   date: string;
   time: string;
 }
@@ -41,14 +41,16 @@ export interface WeatherCondition {
   clouds: number;
 }
 
-// Fix: Updated PredictionResult to include all fields returned by predictionService.ts
+// Matches RespostaPrevisaoDTO from Swagger
+export interface RespostaPrevisaoDTO {
+  previsao: "Atrasado" | "No horário";
+  probabilidade_atraso: number;
+  timestamp: string;
+}
+
 export interface PredictionResult {
   isDelayed: boolean;
   confidence: number;
-  delayMinutes: number;
-  reason?: string;
   weather: WeatherCondition;
-  historicalDelayRate: number;
-  alternativeAirports: Airport[];
-  bestDepartureTime: string;
+  timestamp: string;
 }

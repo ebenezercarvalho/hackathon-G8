@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ChevronDown, X } from 'lucide-react';
+import { Search, ChevronDown, Loader2 } from 'lucide-react';
 
 interface Option {
   nome: string;
@@ -8,20 +8,22 @@ interface Option {
 }
 
 interface AutocompleteProps {
-  options: Option[];
+  endpoint: string; // e.g., 'aeroportos' or 'companhia-aerea'
   placeholder: string;
-  value: string;
-  onChange: (value: string) => void;
+  value: Option | null;
+  onChange: (value: Option) => void;
   label: string;
 }
 
-const Autocomplete: React.FC<AutocompleteProps> = ({ options, placeholder, value, onChange, label }) => {
+const API_BASE_URL = 'http://localhost:8080';
+
+const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, value, onChange, label }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [options, setOptions] = useState<Option[]>([]);
+  const [loading, setLoading] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const selectedOption = options.find(opt => opt.codigoIata === value);
+  const debounceTimer = useRef<number | null>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -33,20 +35,41 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ options, placeholder, value
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filteredOptions = options.filter(opt =>
-    opt.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    opt.codigoIata.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleSelect = (option: Option) => {
-    onChange(option.codigoIata);
-    setSearchTerm('');
-    setIsOpen(false);
+  const fetchOptions = async (term: string) => {
+    if (term.length < 2) {
+      setOptions([]);
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/autocomplete/${endpoint}?termo=${encodeURIComponent(term)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setOptions(data);
+      }
+    } catch (error) {
+      console.error('Error fetching autocomplete options:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') setIsOpen(false);
-    if (e.key === 'Enter' && !isOpen) setIsOpen(true);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    
+    if (debounceTimer.current) window.clearTimeout(debounceTimer.current);
+    
+    debounceTimer.current = window.setTimeout(() => {
+      fetchOptions(term);
+    }, 300);
+  };
+
+  const handleSelect = (option: Option) => {
+    onChange(option);
+    setSearchTerm('');
+    setIsOpen(false);
   };
 
   return (
@@ -59,9 +82,8 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ options, placeholder, value
         role="combobox"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        aria-controls="autocomplete-listbox"
+        aria-controls={`autocomplete-${endpoint}`}
         tabIndex={0}
-        onKeyDown={handleKeyDown}
         onClick={() => setIsOpen(!isOpen)}
         className={`
           w-full bg-slate-950 border rounded p-3 text-sm flex items-center justify-between cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500
@@ -69,10 +91,10 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ options, placeholder, value
         `}
       >
         <div className="flex items-center gap-2 overflow-hidden">
-          {selectedOption ? (
+          {value ? (
             <span className="text-white truncate">
-              <strong className="text-cyan-400 font-mono mr-2">{selectedOption.codigoIata}</strong>
-              {selectedOption.nome}
+              <strong className="text-cyan-400 font-mono mr-2">{value.codigoIata}</strong>
+              {value.nome}
             </span>
           ) : (
             <span className="text-slate-500">{placeholder}</span>
@@ -83,7 +105,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ options, placeholder, value
 
       {isOpen && (
         <div 
-          id="autocomplete-listbox"
+          id={`autocomplete-${endpoint}`}
           role="listbox"
           className="absolute z-[100] w-full mt-1 bg-slate-900 border border-slate-700 rounded shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
         >
@@ -91,40 +113,44 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ options, placeholder, value
             <div className="relative">
               <Search className="absolute left-2 top-2.5 text-slate-500" size={14} aria-hidden="true" />
               <input
-                ref={inputRef}
                 autoFocus
                 type="text"
-                aria-label="Filter results"
-                placeholder="Type to filter..."
+                placeholder="Search..."
                 className="w-full bg-slate-800 border-none rounded p-2 pl-8 text-xs text-white focus:ring-0 outline-none"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 onClick={(e) => e.stopPropagation()}
               />
+              {loading && <Loader2 className="absolute right-2 top-2.5 text-cyan-500 animate-spin" size={14} />}
             </div>
           </div>
           
           <div className="max-h-60 overflow-y-auto">
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((option) => (
+            {options.length > 0 ? (
+              options.map((option) => (
                 <div
-                  key={option.codigoIata}
+                  key={option.codigoIcao}
                   role="option"
-                  aria-selected={value === option.codigoIata}
+                  aria-selected={value?.codigoIcao === option.codigoIcao}
                   onClick={() => handleSelect(option)}
                   className={`
                     px-4 py-3 cursor-pointer hover:bg-cyan-500/10 transition-colors border-l-2
-                    ${value === option.codigoIata ? 'bg-cyan-500/20 border-cyan-500' : 'border-transparent'}
+                    ${value?.codigoIcao === option.codigoIcao ? 'bg-cyan-500/20 border-cyan-500' : 'border-transparent'}
                   `}
                 >
                   <div className="flex flex-col">
                     <span className="text-sm text-white font-medium">{option.nome}</span>
-                    <span className="text-[10px] text-slate-500 uppercase">{option.codigoIata}</span>
+                    <div className="flex gap-2">
+                       <span className="text-[10px] text-slate-500 uppercase">IATA: {option.codigoIata}</span>
+                       <span className="text-[10px] text-cyan-600 uppercase">ICAO: {option.codigoIcao}</span>
+                    </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="p-4 text-center text-xs text-slate-500 italic">No results</div>
+              <div className="p-4 text-center text-xs text-slate-500 italic">
+                {searchTerm.length < 2 ? 'Type at least 2 characters...' : 'No results found'}
+              </div>
             )}
           </div>
         </div>

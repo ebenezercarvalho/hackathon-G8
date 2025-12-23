@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Plane, Calendar, Clock, MapPin, Activity, ArrowRight, Languages, Loader2 } from 'lucide-react';
-import { FlightFormData, PredictionResult, Language } from './types';
-import { BRAZILIAN_AIRPORTS, BRAZILIAN_AIRLINES } from './constants';
+import { FlightFormData, PredictionResult, Language, Airport, Airline } from './types';
 import { predictFlightDelay } from './services/predictionService';
 import { translations } from './translations';
 import PredictionResultCard from './components/PredictionResult';
@@ -17,23 +16,23 @@ function App() {
   const [hasStarted, setHasStarted] = useState(false);
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [formData, setFormData] = useState<FlightFormData>({
-    origin: '',
-    destination: '',
-    airline: '',
+    origin: null,
+    destination: null,
+    airline: null,
     date: '',
     time: ''
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleAutocompleteChange = (name: string, value: string) => {
+  const handleAutocompleteChange = (name: 'origin' | 'destination' | 'airline', value: Airport | Airline) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleReset = () => {
-    setFormData({ origin: '', destination: '', airline: '', date: '', time: '' });
+    setFormData({ origin: null, destination: null, airline: null, date: '', time: '' });
     setResult(null);
     setHasStarted(false);
   };
@@ -51,9 +50,9 @@ function App() {
     try {
       const prediction = await predictFlightDelay(formData);
       setResult(prediction);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("Error predicting delay");
+      alert(`Error predicting delay: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -113,25 +112,25 @@ function App() {
                 <Autocomplete 
                   label={t.origin}
                   placeholder={t.searchPlaceholder}
-                  options={BRAZILIAN_AIRPORTS}
+                  endpoint="aeroportos"
                   value={formData.origin}
-                  onChange={(val) => handleAutocompleteChange('origin', val)}
+                  onChange={(val) => handleAutocompleteChange('origin', val as Airport)}
                 />
                 <Autocomplete 
                   label={t.destination}
                   placeholder={t.searchPlaceholder}
-                  options={BRAZILIAN_AIRPORTS}
+                  endpoint="aeroportos"
                   value={formData.destination}
-                  onChange={(val) => handleAutocompleteChange('destination', val)}
+                  onChange={(val) => handleAutocompleteChange('destination', val as Airport)}
                 />
               </div>
 
               <Autocomplete 
                 label={t.airline}
                 placeholder={t.searchPlaceholder}
-                options={BRAZILIAN_AIRLINES}
+                endpoint="companhia-aerea"
                 value={formData.airline}
-                onChange={(val) => handleAutocompleteChange('airline', val)}
+                onChange={(val) => handleAutocompleteChange('airline', val as Airline)}
               />
             </div>
 
@@ -208,14 +207,23 @@ function App() {
             <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-700">
               <PredictionResultCard result={result} lang={lang} />
               <WeatherPanel weather={result.weather} lang={lang} />
-              <ReportGenerator flightData={formData} prediction={result} lang={lang} />
+              <ReportGenerator 
+                flightData={{
+                  ...formData,
+                  origin: formData.origin?.nome || '',
+                  destination: formData.destination?.nome || '',
+                  airline: formData.airline?.nome || ''
+                } as any} 
+                prediction={result} 
+                lang={lang} 
+              />
             </div>
           )}
         </div>
       </main>
       
       <footer className="w-full text-center py-12 text-slate-600 text-[10px] font-mono uppercase tracking-[0.2em] opacity-50">
-        &copy; 2024 Aerospace Predictive Systems &bull; Unified Forecast Unit
+        &copy; 2024 Aerospace Predictive Systems &bull; Integrated API Module
       </footer>
     </div>
   );

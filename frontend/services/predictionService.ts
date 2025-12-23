@@ -1,54 +1,50 @@
-import { FlightFormData, PredictionResult } from '../types';
+import { FlightFormData, PredictionResult, RespostaPrevisaoDTO } from '../types';
 import { fetchFlightWeather } from './weatherService';
-import { BRAZILIAN_AIRPORTS } from '../constants';
+
+const API_BASE_URL = 'http://localhost:8080';
 
 export const predictFlightDelay = async (data: FlightFormData): Promise<PredictionResult> => {
-  // Simulate network latency
-  await new Promise(resolve => setTimeout(resolve, 1500));
-
-  // 1. Get origin airport details to fetch weather
-  const originAirport = BRAZILIAN_AIRPORTS.find(a => a.codigoIata === data.origin);
-  const originCity = originAirport?.nome.split('/')[0] || 'Sao Paulo';
-
-  // 2. Fetch (or mock) weather
-  const weather = await fetchFlightWeather(originCity);
-
-  // 3. Mock ML Rule-Based Logic
-  let delayScore = 0;
-  
-  if (['Rain', 'Thunderstorm', 'Snow'].includes(weather.condition)) delayScore += 40;
-  if (weather.windSpeed > 20) delayScore += 20;
-  
-  // Estimate period from time for mock logic
-  // Typically afternoon (12-18) and evening (18-00) have more delays
-  if (data.time) {
-    const hour = parseInt(data.time.split(':')[0], 10);
-    if (hour >= 12 && hour < 23) {
-      delayScore += 15;
-    }
+  if (!data.origin || !data.destination || !data.airline) {
+    throw new Error("Missing flight data");
   }
-  
-  // Specific airline "performance" mock
-  if (data.airline === 'G3') delayScore += 5;
 
-  delayScore += Math.floor(Math.random() * 20);
+  // 1. Prepare the VooDTO for the backend
+  // Format date and time to ISO string: 2025-12-25T14:30:00
+  const dateTimeStr = `${data.date}T${data.time}:00`;
 
-  const isDelayed = delayScore > 50;
-  const confidence = Math.min(Math.floor(50 + (delayScore / 2)), 98);
+  const vooDto = {
+    codigoIcaoCompanhiaAerea: data.airline.codigoIcao,
+    codigoIcaoVooOrigem: data.origin.codigoIcao,
+    codigoIcaoVooDestino: data.destination.codigoIcao,
+    dataPartida: dateTimeStr
+  };
 
-  const alternativeAirports = BRAZILIAN_AIRPORTS
-    .filter(a => a.codigoIata !== data.origin && a.codigoIata !== data.destination)
-    .sort(() => 0.5 - Math.random())
-    .slice(0, 2);
+  // 2. Call the Real Backend
+  const response = await fetch(`${API_BASE_URL}/predict`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(vooDto)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to fetch prediction from server');
+  }
+
+  const result: RespostaPrevisaoDTO = await response.json();
+
+  // 3. Fetch Weather for UI (Origin City)
+  // Extract city from "City Name - Airport Name" or similar
+  const cityName = data.origin.nome.split('-')[0].trim() || 'Sao Paulo';
+  const weather = await fetchFlightWeather(cityName);
 
   return {
-    isDelayed,
-    confidence,
-    delayMinutes: isDelayed ? Math.floor(Math.random() * 120) + 15 : 0,
-    reason: isDelayed ? `Adverse weather (${weather.condition}) and operational constraints` : undefined,
-    weather,
-    historicalDelayRate: Math.floor(Math.random() * 30) + 5,
-    alternativeAirports,
-    bestDepartureTime: "06:45 AM"
+    isDelayed: result.previsao === "Atrasado",
+    confidence: Math.round(result.probabilidade_atraso * 100),
+    timestamp: result.timestamp,
+    weather
   };
 };
