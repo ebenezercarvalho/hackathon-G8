@@ -4,16 +4,16 @@ import br.com.alura.flightontime.dto.VooDTO;
 import br.com.alura.flightontime.repository.CompanhiaAereaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class CompanhiaAereaValidation {
+public class CompanhiaAereaValidation implements VooValidation {
     @Autowired
     private CompanhiaAereaRepository companhiaAereaRepository;
 
-    public List<String> validaCompanhiaAerea(VooDTO vooDTO) {
+    @Override
+    public List<String> validar(VooDTO vooDTO) {
         List<String> listaErros = new ArrayList<>();
         var companhiaAereaEncontrada = companhiaAereaRepository.findByCodigoIcaoAndAtivo(vooDTO.codigoIcaoCompanhiaAerea(), "Y");
 

@@ -1,4 +1,4 @@
-package br.com.alura.flightontime.exception;
+package br.com.alura.flightontime.infra.exception;
 
 import java.util.List;
 

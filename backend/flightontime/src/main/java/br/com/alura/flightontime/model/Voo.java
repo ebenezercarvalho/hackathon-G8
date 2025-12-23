@@ -7,5 +7,4 @@ public class Voo {
     private String origem;
     private String destino;
     private LocalDateTime dataPartida;
-    private Double distancia;
 }

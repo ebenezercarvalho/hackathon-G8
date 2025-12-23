@@ -1,5 +1,6 @@
 package br.com.alura.flightontime.dto;
 
+import br.com.alura.flightontime.model.PeriodoDia;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,4 +28,15 @@ public record VooDTO(
         @Schema(description = "Data e hora prevista para a partida", example = "2025-12-25T14:30:00")
         @NotNull(message = "Data de partida é obrigatória.")
         LocalDateTime dataPartida) {
+
+    public RequisicaoPrevisaoVooDTO converteParaRequisicaoPrevisaoVooDTO() {
+        return new RequisicaoPrevisaoVooDTO(
+                this.codigoIcaoVooOrigem(),
+                this.codigoIcaoVooDestino(),
+                this.codigoIcaoCompanhiaAerea(),
+                PeriodoDia.retornaPeriodo(this.dataPartida().getHour()).getPeriodo(),
+                this.dataPartida().getHour(),
+                this.dataPartida().getDayOfWeek().getValue() - 1,
+                this.dataPartida().getMonthValue());
+    }
 }

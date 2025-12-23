@@ -1,15 +1,24 @@
 package br.com.alura.flightontime.service;
 
-import br.com.alura.flightontime.dto.RequisicaoPrevisaoVooDTO;
+import br.com.alura.flightontime.dto.RespostaPrevisaoDTO;
 import br.com.alura.flightontime.dto.VooDTO;
-import br.com.alura.flightontime.exception.ValidacaoDBException;
+import br.com.alura.flightontime.infra.exception.ErroConfiguracaoApiException;
+import br.com.alura.flightontime.infra.exception.RespostaInvalidaServicoExternoException;
+import br.com.alura.flightontime.infra.exception.ServicoExternoIndisponivelException;
+import br.com.alura.flightontime.infra.exception.ValidacaoDBException;
 import br.com.alura.flightontime.repository.AeroportoRepository;
 import br.com.alura.flightontime.repository.CompanhiaAereaRepository;
 import br.com.alura.flightontime.validation.AeroportoValidation;
 import br.com.alura.flightontime.validation.CompanhiaAereaValidation;
+import br.com.alura.flightontime.validation.VooValidation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClient;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,29 +37,39 @@ public class PrevisaoVooService {
     @Autowired
     private CompanhiaAereaValidation companhiaAereaValidation;
 
-    public RequisicaoPrevisaoVooDTO previsao(VooDTO vooDTO) {
+    @Autowired
+    private RestClient restClient;
+
+    @Autowired
+    private List<VooValidation> validadores = new ArrayList<>();
+
+    @Value("${api.previsao.uri}")
+    private URI apiUri;
+
+    public RespostaPrevisaoDTO previsao(VooDTO vooDTO) throws RespostaInvalidaServicoExternoException {
         List<String> listaErros = new ArrayList<>();
-        listaErros.addAll(aeroportoValidation.validaAeroportos(vooDTO));
-        listaErros.addAll(companhiaAereaValidation.validaCompanhiaAerea(vooDTO));
+
+        validadores.forEach(validacao -> {listaErros.addAll(validacao.validar(vooDTO));});
+
         if (!listaErros.isEmpty()) {
             throw new ValidacaoDBException(listaErros);
         }
 
-        return new RequisicaoPrevisaoVooDTO(
-                vooDTO.codigoIcaoVooOrigem(),
-                vooDTO.codigoIcaoVooDestino(),
-                vooDTO.codigoIcaoCompanhiaAerea(),
-                definirPeriodo(vooDTO.dataPartida().getHour()),
-                vooDTO.dataPartida().getHour(),
-                vooDTO.dataPartida().getDayOfWeek().getValue(),
-                vooDTO.dataPartida().getMonthValue()
-        );
+        try {
+            var resposta = restClient.post()
+                    .uri(apiUri)
+                    .body(vooDTO.converteParaRequisicaoPrevisaoVooDTO())
+                    .retrieve()
+                    .body(RespostaPrevisaoDTO.class);
+            resposta.validacao();
+            return resposta;
+        } catch (IllegalArgumentException ex) {
+            throw new ErroConfiguracaoApiException("Erro interno do servidor");
+        }
+        catch (ResourceAccessException ex) {
+            throw new ServicoExternoIndisponivelException("Serviço de previsão indisponível no momento", ex);
+        } catch (HttpStatusCodeException ex) {
+            throw new RespostaInvalidaServicoExternoException("Erro ao requisitar serviço de previsão");
+        }
     }
-
-    private String definirPeriodo(int hora) {
-        if (hora >= 0 && hora < 12) return "Manhã";
-        if (hora >= 12 && hora < 18) return "Tarde";
-        return "Noite";
-    }
-
 }
