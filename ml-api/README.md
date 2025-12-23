@@ -1,22 +1,43 @@
-# ✈️ Flight Delay - Previsão de Atrasos de Voos
+# ✈️ Flight Delay Prediction API
 
-Microserviço de Machine Learning desenvolvido com **FastAPI** e **scikit-learn** para prever atrasos de voos. Este serviço foi projetado para operar como um *sidecar* ou microserviço independente, consumido por um backend Java (Spring Boot).
+Este projeto consiste em um microserviço de **Machine Learning** desenvolvido com **FastAPI** para prever a probabilidade de atrasos em voos comerciais. Ele utiliza um modelo *Random Forest* treinado com dados históricos para fornecer estimativas em tempo real.
 
-## 📋 Pré-requisitos
+O serviço foi projetado para operar como um componente *sidecar* ou microserviço independente, ideal para ser consumido por backends robustos (como aplicações Spring Boot).
 
-- Python 3.10 ou superior
-- Pip (Gerenciador de pacotes Python)
-- Arquivo do modelo treinado: `modelo_flight_delay.pkl` (Deve estar na raiz deste diretório)
+---
 
-## 🚀 Instalação e Execução Local
+## 📋 Funcionalidades Principais
 
-### 1. Configurar Ambiente Virtual
-É altamente recomendado usar um ambiente virtual para isolar as dependências.
+- **Predição de Atraso**: Analisa dados do voo (origem, destino, companhia, horário) e retorna:
+  - Classificação ("Atrasado" ou "Pontual").
+  - Probabilidade calculada (0.0 a 1.0).
+  - Nível de confiança.
+- **Robustez**: O modelo é capaz de lidar com novos aeroportos ou empresas aéreas não vistas no treinamento, utilizando uma "taxa base" de atraso para imputação segura de dados desconhecidos.
+- **Alta Performance**: Construído sobre FastAPI e Uvicorn para respostas assíncronas rápidas.
+- **Diagnóstico**: Endpoints de saúde (`/health`) e informações do modelo (`/model-info`) para monitoramento.
+
+---
+
+## �️ Pré-requisitos
+
+- **Python 3.10+** instalado.
+- **Pip** (Gerenciador de pacotes Python).
+- Arquivo do modelo: **`modelo_flight_delay.pkl`** (Deve estar obrigatoriamente na raiz do diretório `ml-api`).
+
+---
+
+## 🚀 Como Executar Localmente
+
+Siga os passos abaixo para colocar a API no ar em sua máquina.
+
+### 1. Configuração do Ambiente
+
+É recomendável usar um ambiente virtual para isolar as dependências do projeto.
 
 **Windows:**
-```bash
+```powershell
 python -m venv venv
-venv\Scripts\activate
+.\venv\Scripts\activate
 ```
 
 **Linux/Mac:**
@@ -25,44 +46,59 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 2. Instalar Dependências
+### 2. Instalação de Dependências
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Verificar o Modelo
-Certifique-se de que o arquivo `modelo_flight_delay.pkl` está presente pasta `ml-api`.
-> **Nota:** O modelo é carregado automaticamente ao iniciar a API. Se ele não for encontrado, a API iniciará, mas os endpoints de predição retornarão erro 503.
+### 3. Execução do Servidor
 
-### 4. Rodar a API
-Você pode rodar diretamente com Python (que invocará o uvicorn):
+Você pode iniciar o servidor de duas formas:
 
+**Via Python (Script facilitador):**
 ```bash
 python main.py
 ```
 
-Ou usando o comando uvicorn diretamente (útil para desenvolvimento com reload):
-
+**Via Uvicorn (Recomendado para desenvolvimento):**
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-A API estará disponível em: `http://localhost:8000`
+A API estará acessível em: `http://localhost:8000`
 
 ---
 
-## 📡 Documentação da API
+## 📡 Documentação dos Endpoints
 
-Acesse a documentação interativa automática (Swagger UI) para testar os endpoints:
-- **URL:** `http://localhost:8000/docs`
+Abaixo estão detalhados os endpoints disponíveis na API.
 
-### Endpoint Principal: `/predict` [POST]
+### 📚 Documentação Interativa (Swagger UI)
+Acesse `http://localhost:8000/docs` para testar os endpoints diretamente pelo navegador.
 
-Recebe os dados do voo e retorna a probabilidade de atraso.
+---
 
-**Exemplo de Payload (JSON):**
-⚠️ **Atenção:** Números inteiros (como mês e hora) **NÃO** podem ter zero à esquerda (ex: use `6` em vez de `06`).
+### 1. Predição de Atraso
+**Rota:** `POST /predict`
 
+Recebe os detalhes de um voo e retorna a análise de risco de atraso.
+
+> **Nota sobre Robustez:** Se um código de aeroporto ou empresa informada não for reconhecido pelo modelo (não existia no treino), a API **não retornará erro**. Ela utilizará a média global de atrasos como base para o cálculo. Isso garante que o serviço continue operando mesmo com novos dados.
+
+**Corpo da Requisição (JSON):**
+
+| Campo | Tipo | Descrição | Exemplo |
+|-------|------|-----------|---------|
+| `aerodromo_origem` | string | Código ICAO do aeroporto de origem | `"SBGR"` |
+| `aerodromo_destino` | string | Código ICAO do aeroporto de destino | `"SBRJ"` |
+| `empresa` | string | Sigla ou nome da companhia aérea | `"LATAM"` |
+| `periodo_dia` | string | Período do voo (Manhã, Tarde, Noite, Madrugada) | `"Tarde"` |
+| `partida_hora` | int | Hora da partida (0-23) | `14` |
+| `partida_dia_semana` | int | Dia da semana (0=Segunda ... 6=Domingo) | `4` |
+| `partida_mes` | int | Mês da partida (1-12) | `6` |
+
+**Exemplo de Payload:**
 ```json
 {
   "aerodromo_origem": "SBGR",
@@ -75,27 +111,47 @@ Recebe os dados do voo e retorna a probabilidade de atraso.
 }
 ```
 
-**Exemplo de Resposta:**
+**Exemplo de Resposta (200 OK):**
 ```json
 {
   "previsao": "Atrasado",
   "probabilidade_atraso": 0.7823,
   "confianca_percentual": "78.2%",
-  "timestamp": "2025-12-11T10:15:30.123456"
+  "timestamp": "2025-12-18T20:30:15.123456"
 }
 ```
 
 ---
 
-## ☕ Integração com Spring Boot
+### 2. Health Check
+**Rota:** `GET /health`
 
-Este microserviço foi desenhado para ser consumido pelo seu backend Java. Abaixo estão os exemplos de implementação.
+Verifica se a API está online e se o modelo de Machine Learning foi carregado corretamente na memória. Útil para *liveness probes* em orquestradores como Kubernetes.
 
-### 1. DTOs (Data Transfer Objects)
+**Resposta Exemplo:**
+```json
+{
+  "status": "healthy",
+  "modelo_carregado": true,
+  "data_treinamento": "2024-12-10",
+  "metricas": { "roc_auc": 0.68 }
+}
+```
 
-Crie classes Java equivalentes aos contratos da API.
+---
 
-**VooRequest.java**
+### 3. Informações do Modelo
+**Rota:** `GET /model-info`
+
+Retorna metadados técnicos sobre a versão do modelo que está sendo executada, incluindo métricas de performance obtidas durante o treinamento.
+
+---
+
+## ☕ Exemplo de Integração (Java Spring Boot)
+
+Se você está consumindo esta API de um backend Java, pode utilizar o padrão DTO e `RestTemplate` ou `WebClient`.
+
+**Exemplo de DTO (Request):**
 ```java
 public class VooRequest {
     private String aerodromo_origem;
@@ -105,112 +161,32 @@ public class VooRequest {
     private Integer partida_hora;
     private Integer partida_dia_semana;
     private Integer partida_mes;
-
-    // Getters, Setters e Construtores
+    // Getters e Setters...
 }
 ```
 
-**PrevisaoResponse.java**
+**Chamada via RestTemplate:**
 ```java
-public class PrevisaoResponse {
-    private String previsao;
-    private Double probabilidade_atraso;
-    private String confianca_percentual;
-    private String timestamp;
-    
-    // Getters, Setters
-}
-```
-
-### 2. Service Client (Exemplo com RestTemplate)
-
-```java
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-@Service
-public class FlightDelayPredictionService {
-
-    private final RestTemplate restTemplate = new RestTemplate();
-    // URL do sidecar ou serviço dockerizado
-    private final String ML_API_URL = "http://localhost:8000/predict";
-
-    public PrevisaoResponse preverAtraso(VooRequest request) {
-        try {
-            return restTemplate.postForObject(ML_API_URL, request, PrevisaoResponse.class);
-        } catch (Exception e) {
-            // Tratamento de erro (ex: modelo indisponível)
-            return new PrevisaoResponse("Indisponível", 0.0, "0%", null);
-        }
-    }
-}
-```
-
-### 3. Service Client (Exemplo com WebClient / WebFlux)
-Mais moderno e não-bloqueante.
-
-```java
-@Service
-public class FlightDelayPredictionAsyncService {
-    
-    private final WebClient webClient;
-
-    public FlightDelayPredictionAsyncService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://localhost:8000").build();
-    }
-
-    public Mono<PrevisaoResponse> preverAtraso(VooRequest request) {
-        return this.webClient.post()
-                .uri("/predict")
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(PrevisaoResponse.class);
-    }
-}
+String url = "http://localhost:8000/predict";
+PrevisaoResponse resposta = restTemplate.postForObject(url, vooRequest, PrevisaoResponse.class);
 ```
 
 ---
 
-## 🐳 Docker (Deployment em Produção)
+## 🐳 Executando com Docker
 
-Para rodar este microserviço em container (ex: Kubernetes, ECS ou Docker Compose junto com o Spring Boot).
+Para facilitar o deploy, o projeto inclui um `Dockerfile` otimizado.
 
-**1. Construir a Imagem:**
-```bash
-docker build -t flight-delay-ml-api .
-```
+1. **Construir a imagem:**
+   ```bash
+   docker build -t flight-delay-api .
+   ```
 
-**2. Rodar o Container:**
-```bash
-docker run -p 8000:8000 flight-delay-ml-api
-```
-
-**3. Docker Compose (Exemplo):**
-```yaml
-version: '3'
-services:
-  backend-java:
-    build: ./backend
-    ports: ["8080:8080"]
-    depends_on:
-      - ml-api
-      
-  ml-api:
-    build: ./ml-api
-    ports: ["8000:8000"]
-    restart: always
-```
+2. **Rodar o container:**
+   ```bash
+   docker run -d -p 8000:8000 --name ml-api flight-delay-api
+   ```
 
 ---
 
-## 🛠️ Solução de Problemas Comuns
-
-| Erro | Causa Provável | Solução |
-|------|----------------|---------|
-| **503 Service Unavailable** | Modelo `.pkl` não encontrado ou corrompido. | Verifique se `modelo_flight_delay.pkl` está na pasta `ml-api`. Confirme os logs de inicialização. |
-| **422 Unprocessable Entity** | Erro de formato JSON. Frequentemente causado por zeros à esquerda em números (ex: `05`). | Envie números limpos: `5` em vez de `05`. Valide o JSON. |
-| **Connection Refused** | API não está rodando ou porta 8000 bloqueada. | Verifique se o processo Python está ativo. Se usar Docker, verifique o mapeamento de portas (`-p 8000:8000`). |
-
----
-
-**Desenvolvido por Antigravity Team 🚀**
+**Desenvolvido pelo Time Antigravity 🚀**

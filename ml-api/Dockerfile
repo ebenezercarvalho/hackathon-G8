@@ -13,7 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY main.py .
 
 # Copiar o modelo (ajuste o caminho se necessário)
-COPY ../modelo_flight_delay.pkl /app/modelo_flight_delay.pkl
+# Copiar o modelo (arquivo deve estar no mesmo diretório do Dockerfile)
+COPY modelo_flight_delay.pkl /app/modelo_flight_delay.pkl
 
 # Expor porta
 EXPOSE 8000
