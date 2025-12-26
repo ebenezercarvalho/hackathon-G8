@@ -43,7 +43,7 @@ export const predictFlightDelay = async (data: FlightFormData): Promise<Predicti
 
   return {
     isDelayed: result.previsao === "Atrasado",
-    confidence: Math.round(result.probabilidade_atraso * 100),
+    confidence: Math.round((1 - result.probabilidade_atraso) * 100),
     timestamp: result.timestamp,
     weather
   };
