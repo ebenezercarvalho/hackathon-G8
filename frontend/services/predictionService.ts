@@ -13,9 +13,9 @@ export const predictFlightDelay = async (data: FlightFormData): Promise<Predicti
   const dateTimeStr = `${data.date}T${data.time}:00`;
 
   const vooDto = {
-    codigoIcaoCompanhiaAerea: data.airline.codigoIcao,
-    codigoIcaoVooOrigem: data.origin.codigoIcao,
-    codigoIcaoVooDestino: data.destination.codigoIcao,
+    companhiaAerea: data.airline.codigoIcao,
+    aeroportoOrigem: data.origin.codigoIcao,
+    aeroportoDestino: data.destination.codigoIcao,
     dataPartida: dateTimeStr
   };
 
