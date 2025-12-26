@@ -9,11 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2",
+    "lucide-react": "^0.561.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "jspdf": "^3.0.4",
-    "lucide-react": "^0.561.0",
-    "jspdf-autotable": "^5.0.2",
     "recharts": "^3.6.0"
   },
   "devDependencies": {
