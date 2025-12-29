@@ -22,9 +22,9 @@ export interface Airline {
 }
 
 export interface FlightFormData {
-  origin: Airport | null; 
-  destination: Airport | null; 
-  airline: Airline | null; 
+  origin: Airport | null;
+  destination: Airport | null;
+  airline: Airline | null;
   date: string;
   time: string;
 }
@@ -51,6 +51,6 @@ export interface RespostaPrevisaoDTO {
 export interface PredictionResult {
   isDelayed: boolean;
   confidence: number;
-  weather: WeatherCondition;
+  weather: WeatherCondition | null;
   timestamp: string;
 }
