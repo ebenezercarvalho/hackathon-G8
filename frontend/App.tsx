@@ -9,7 +9,8 @@ import ReportGenerator from './components/ReportGenerator';
 import Autocomplete from './components/Autocomplete';
 
 function App() {
-  const [lang, setLang] = useState<Language>('en');
+  // 2) Set Portuguese as the default host language
+  const [lang, setLang] = useState<Language>('pt');
   const t = translations[lang];
 
   const [loading, setLoading] = useState(false);
@@ -59,10 +60,11 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] bg-grid bg-fixed text-slate-300 font-sans selection:bg-cyan-500/30">
+    // 1) Inverse gradient: from clear (slate-800) to dark (black)
+    <div className="min-h-screen bg-gradient-to-b from-slate-800 via-[#020617] to-black bg-fixed text-slate-300 font-sans selection:bg-cyan-500/30">
       
       {/* Header */}
-      <header className="relative w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="relative w-full border-b border-slate-700 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-lg shadow-lg">
@@ -75,10 +77,10 @@ function App() {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-slate-500 mr-4">
+            <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-slate-400 mr-4">
                <Activity size={12} className="text-green-500" /> {t.systemOnline}
             </div>
-            <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-full px-3 py-1.5">
+            <div className="flex items-center gap-2 bg-slate-950/50 border border-slate-700 rounded-full px-3 py-1.5">
               <Languages size={14} className="text-cyan-500" aria-hidden="true" />
               <select 
                 value={lang} 
@@ -98,7 +100,7 @@ function App() {
       <main className="max-w-4xl mx-auto px-4 py-12 space-y-12">
         
         {/* DATA ENTRY SECTION */}
-        <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 lg:p-10 shadow-2xl relative overflow-hidden">
+        <section className="bg-slate-950/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 lg:p-10 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500" aria-hidden="true"></div>
           
           <div className="grid grid-cols-1 gap-8">
@@ -148,7 +150,7 @@ function App() {
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-950 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 transition-all outline-none"
+                    className="w-full bg-slate-950/80 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 transition-all outline-none"
                     aria-required="true"
                   />
                 </div>
@@ -159,7 +161,7 @@ function App() {
                     name="time"
                     value={formData.time}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-950 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 outline-none"
+                    className="w-full bg-slate-950/80 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 outline-none"
                     aria-required="true"
                   />
                 </div>
@@ -177,7 +179,7 @@ function App() {
               </button>
               <button 
                 onClick={handleReset}
-                className="px-8 py-4 bg-slate-800 border border-slate-700 text-slate-300 font-bold rounded-xl hover:bg-slate-700 transition-all uppercase tracking-wider text-sm"
+                className="px-8 py-4 bg-slate-900 border border-slate-700 text-slate-300 font-bold rounded-xl hover:bg-slate-800 transition-all uppercase tracking-wider text-sm"
               >
                 {t.reset}
               </button>
@@ -196,7 +198,7 @@ function App() {
           )}
 
           {hasStarted && !loading && !result && (
-            <div className="text-center py-12 border-2 border-dashed border-slate-800 rounded-2xl">
+            <div className="text-center py-12 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-950/20">
               <Loader2 className="mx-auto text-slate-700 mb-4 animate-spin" size={48} aria-hidden="true" />
               <h3 className="text-lg font-bold text-slate-600 uppercase tracking-widest">{t.waiting}</h3>
               <p className="text-slate-700 text-sm">{t.waitingDesc}</p>
