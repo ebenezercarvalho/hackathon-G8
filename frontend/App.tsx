@@ -43,7 +43,7 @@ function App() {
       alert("Please fill in all required fields.");
       return;
     }
-    
+
     setHasStarted(true);
     setLoading(true);
     setResult(null);
@@ -62,7 +62,7 @@ function App() {
   return (
     // 1) Inverse gradient: from clear (slate-800) to dark (black)
     <div className="min-h-screen bg-gradient-to-b from-slate-800 via-[#020617] to-black bg-fixed text-slate-300 font-sans selection:bg-cyan-500/30">
-      
+
       {/* Header */}
       <header className="relative w-full border-b border-slate-700 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -75,15 +75,15 @@ function App() {
               <p className="text-[10px] font-mono text-cyan-600 tracking-widest uppercase">{t.subtitle}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-slate-400 mr-4">
-               <Activity size={12} className="text-green-500" /> {t.systemOnline}
+              <Activity size={12} className="text-green-500" /> {t.systemOnline}
             </div>
             <div className="flex items-center gap-2 bg-slate-950/50 border border-slate-700 rounded-full px-3 py-1.5">
               <Languages size={14} className="text-cyan-500" aria-hidden="true" />
-              <select 
-                value={lang} 
+              <select
+                value={lang}
                 onChange={(e) => setLang(e.target.value as Language)}
                 className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer"
                 aria-label="Change language"
@@ -98,27 +98,27 @@ function App() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-12 space-y-12">
-        
+
         {/* DATA ENTRY SECTION */}
         <section className="bg-slate-950/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 lg:p-10 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500" aria-hidden="true"></div>
-          
+
           <div className="grid grid-cols-1 gap-8">
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-cyan-400 border-b border-slate-800 pb-2">
                 <MapPin size={18} aria-hidden="true" />
                 <h2 className="text-sm font-bold uppercase tracking-widest">{t.routing}</h2>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Autocomplete 
+                <Autocomplete
                   label={t.origin}
                   placeholder={t.searchPlaceholder}
                   endpoint="aeroportos"
                   value={formData.origin}
                   onChange={(val) => handleAutocompleteChange('origin', val as Airport)}
                 />
-                <Autocomplete 
+                <Autocomplete
                   label={t.destination}
                   placeholder={t.searchPlaceholder}
                   endpoint="aeroportos"
@@ -127,7 +127,7 @@ function App() {
                 />
               </div>
 
-              <Autocomplete 
+              <Autocomplete
                 label={t.airline}
                 placeholder={t.searchPlaceholder}
                 endpoint="companhia-aerea"
@@ -145,8 +145,8 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs text-slate-400 font-mono block uppercase">{t.date}</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
@@ -156,8 +156,8 @@ function App() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs text-slate-400 font-mono block uppercase">{t.exactTime}</label>
-                  <input 
-                    type="time" 
+                  <input
+                    type="time"
                     name="time"
                     value={formData.time}
                     onChange={handleInputChange}
@@ -169,7 +169,7 @@ function App() {
             </div>
 
             <div className="pt-6 flex flex-col sm:flex-row gap-4">
-              <button 
+              <button
                 onClick={handleSubmit}
                 disabled={loading}
                 className="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 uppercase tracking-wider text-sm"
@@ -177,7 +177,7 @@ function App() {
                 {loading ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
                 {loading ? t.analyzing : t.predict}
               </button>
-              <button 
+              <button
                 onClick={handleReset}
                 className="px-8 py-4 bg-slate-900 border border-slate-700 text-slate-300 font-bold rounded-xl hover:bg-slate-800 transition-all uppercase tracking-wider text-sm"
               >
@@ -209,21 +209,27 @@ function App() {
             <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-700">
               <PredictionResultCard result={result} lang={lang} />
               <WeatherPanel weather={result.weather} lang={lang} />
-              <ReportGenerator 
+              <ReportGenerator
                 flightData={{
                   ...formData,
                   origin: formData.origin?.nome || '',
                   destination: formData.destination?.nome || '',
                   airline: formData.airline?.nome || ''
-                } as any} 
-                prediction={result} 
-                lang={lang} 
+                } as any}
+                prediction={result}
+                lang={lang}
               />
+
+              <div className="text-center pt-8 border-t border-slate-800">
+                <p className="text-xs text-slate-500 font-mono max-w-2xl mx-auto italic">
+                  {t.weatherDisclaimer}
+                </p>
+              </div>
             </div>
           )}
         </div>
       </main>
-      
+
       <footer className="w-full text-center py-12 text-slate-600 text-[10px] font-mono uppercase tracking-[0.2em] opacity-50">
         &copy; 2024 Aerospace Predictive Systems &bull; Integrated API Module
       </footer>
