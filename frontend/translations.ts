@@ -34,7 +34,8 @@ export const translations = {
     metForecastHeader: "Meteorological Forecast",
     skyCondition: "Sky Condition",
     tempRange: "Temp Range",
-    systemOnline: "SYSTEM ONLINE"
+    systemOnline: "SYSTEM ONLINE",
+    forecastUnavailable: "Forecast unavailable at the moment. Please make a new query when there are 15 days or less remaining until your flight date."
   },
   pt: {
     title: "FlightOps Control",
@@ -69,7 +70,8 @@ export const translations = {
     metForecastHeader: "Previsão Meteorológica",
     skyCondition: "Condição do Céu",
     tempRange: "Intervalo de Temp",
-    systemOnline: "SISTEMA ONLINE"
+    systemOnline: "SISTEMA ONLINE",
+    forecastUnavailable: "Previsão indisponível no momento. Por favor, realize uma nova consulta quando faltarem 15 dias ou menos para a data do seu embarque."
   },
   es: {
     title: "FlightOps Control",
@@ -104,6 +106,7 @@ export const translations = {
     metForecastHeader: "Pronóstico Meteorológico",
     skyCondition: "Condición del Cielo",
     tempRange: "Rango de Temp",
-    systemOnline: "SISTEMA EN LÍNEA"
+    systemOnline: "SISTEMA EN LÍNEA",
+    forecastUnavailable: "Pronóstico no disponible en este momento. Por favor, realice una nueva consulta cuando falten 15 días o menos para la fecha de su vuelo."
   }
 };

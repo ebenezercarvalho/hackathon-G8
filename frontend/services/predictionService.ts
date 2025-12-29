@@ -39,7 +39,7 @@ export const predictFlightDelay = async (data: FlightFormData): Promise<Predicti
   // 3. Fetch Weather for UI (Origin City)
   // Extract city from "City Name - Airport Name" or similar
   const cityName = data.origin.nome.split('-')[0].trim() || 'Sao Paulo';
-  const weather = await fetchFlightWeather(cityName);
+  const weather = await fetchFlightWeather(cityName, data.date);
 
   return {
     isDelayed: result.previsao === "Atrasado",

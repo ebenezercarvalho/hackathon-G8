@@ -10,24 +10,41 @@ interface GeoLocation {
   name: string;
 }
 
-export const fetchFlightWeather = async (city: string): Promise<WeatherCondition> => {
+export const fetchFlightWeather = async (city: string, flightDate?: string): Promise<WeatherCondition | null> => {
   try {
-    // 1. Get coordinates for the city
+    // 1. Validate Date (Max 16 days)
+    if (flightDate) {
+      const today = new Date();
+      // Reset time part of today to ensure correct day difference calculation
+      today.setHours(0, 0, 0, 0);
+
+      const flight = new Date(flightDate);
+      flight.setHours(0, 0, 0, 0);
+
+      const diffTime = flight.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      // Open-Meteo allows up to 16 days (0-15 index). 
+      // User requested > 15 days message.
+      if (diffDays > 15) {
+        console.warn(`Flight date is ${diffDays} days ahead. Weather forecast unavailable.`);
+        return null;
+      }
+    }
+
+    // 2. Get coordinates for the city
     const location = await fetchCoordinates(city);
     if (!location) {
       throw new Error(`Location not found for: ${city}`);
     }
 
-    // 2. Get weather for coordinates
-    const weatherData = await fetchWeather(location.latitude, location.longitude);
+    // 3. Get weather for coordinates
+    const weatherData = await fetchWeather(location.latitude, location.longitude, flightDate);
 
     return weatherData;
 
   } catch (error) {
     console.error('Weather service error:', error);
-    // Fallback to a "neutral/unknown" state or re-throw. 
-    // Given the requirement for "Real Data", we mainly want to avoid mocks if possible.
-    // However, if the API fails (e.g. offline), we return a safe default to not break the UI.
     return getFallbackWeather();
   }
 };
@@ -52,14 +69,15 @@ const fetchCoordinates = async (city: string): Promise<GeoLocation | null> => {
   }
 };
 
-const fetchWeather = async (lat: number, lon: number): Promise<WeatherCondition> => {
+const fetchWeather = async (lat: number, lon: number, date?: string): Promise<WeatherCondition> => {
   // requesting current weather variables
   const params = new URLSearchParams({
     latitude: lat.toString(),
     longitude: lon.toString(),
     current: 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,weather_code,cloud_cover,pressure_msl,wind_speed_10m',
-    daily: 'temperature_2m_max,temperature_2m_min',
-    timezone: 'auto'
+    daily: 'temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,wind_speed_10m_max',
+    timezone: 'auto',
+    forecast_days: '16'
   });
 
   const response = await fetch(`${WEATHER_URL}?${params.toString()}`);
@@ -69,32 +87,52 @@ const fetchWeather = async (lat: number, lon: number): Promise<WeatherCondition>
   const current = data.current;
   const daily = data.daily;
 
+  let temp = current.temperature_2m;
+  let minTemp = daily.temperature_2m_min[0];
+  let maxTemp = daily.temperature_2m_max[0];
+  let conditionCode = current.weather_code;
+  let windSpeed = current.wind_speed_10m;
+  let humidity = current.relative_humidity_2m;
+  let rainProb = current.precipitation > 0 ? 100 : 0;
+
+  // Logic to pick the specific day from forecast
+  if (date) {
+    const dateIndex = daily.time.findIndex((d: string) => d === date);
+    if (dateIndex !== -1) {
+      temp = (daily.temperature_2m_max[dateIndex] + daily.temperature_2m_min[dateIndex]) / 2;
+      minTemp = daily.temperature_2m_min[dateIndex];
+      maxTemp = daily.temperature_2m_max[dateIndex];
+      conditionCode = daily.weather_code[dateIndex];
+      windSpeed = daily.wind_speed_10m_max[dateIndex];
+      humidity = 50; // Approximated
+      rainProb = daily.precipitation_probability_max ? daily.precipitation_probability_max[dateIndex] : (daily.precipitation_sum && daily.precipitation_sum[dateIndex] > 0 ? 60 : 10);
+    }
+  }
+
   return {
-    temp: current.temperature_2m,
-    minTemp: daily.temperature_2m_min[0],
-    maxTemp: daily.temperature_2m_max[0],
-    condition: mapWmoCodeToCondition(current.weather_code),
-    windSpeed: current.wind_speed_10m,
-    humidity: current.relative_humidity_2m,
-    rainProbability: current.precipitation > 0 ? 100 : 0, // Open-Meteo gives current precip. For forecast prob we'd need hourly/daily prob. Using simple logic for "now".
+    temp: temp,
+    minTemp: minTemp,
+    maxTemp: maxTemp,
+    condition: mapWmoCodeToCondition(conditionCode),
+    windSpeed: windSpeed,
+    humidity: humidity,
+    rainProbability: rainProb,
     pressure: current.pressure_msl,
     clouds: current.cloud_cover
   };
 }
 
-// Maps WMO Weather interpretation codes (0-99) to our string types
-// https://open-meteo.com/en/docs
 const mapWmoCodeToCondition = (code: number): string => {
   if (code === 0) return 'Clear';
   if (code >= 1 && code <= 3) return 'Clouds';
-  if ((code >= 45 && code <= 48) || (code >= 51 && code <= 55) || (code >= 56 && code <= 57)) return 'Clouds'; // Fog/Drizzle as Clouds or similar
+  if ((code >= 45 && code <= 48) || (code >= 51 && code <= 55) || (code >= 56 && code <= 57)) return 'Clouds';
   if (code >= 61 && code <= 67) return 'Rain';
   if (code >= 71 && code <= 77) return 'Snow';
   if (code >= 80 && code <= 82) return 'Rain';
   if (code >= 85 && code <= 86) return 'Snow';
   if (code >= 95 && code <= 99) return 'Thunderstorm';
 
-  return 'Clear'; // Default
+  return 'Clear';
 };
 
 const getFallbackWeather = (): WeatherCondition => {
