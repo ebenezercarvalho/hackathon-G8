@@ -88,8 +88,8 @@ function App() {
                 className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer"
                 aria-label="Change language"
               >
-                <option value="en" className="bg-slate-900">EN</option>
                 <option value="pt" className="bg-slate-900">PT</option>
+                <option value="en" className="bg-slate-900">EN</option>
                 <option value="es" className="bg-slate-900">ES</option>
               </select>
             </div>
