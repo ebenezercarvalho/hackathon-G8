@@ -36,11 +36,11 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
   }, []);
 
   const fetchOptions = async (term: string) => {
-    if (term.length < 2) {
+    if (term.length < 3) {
       setOptions([]);
       return;
     }
-    
+
     setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/autocomplete/${endpoint}?termo=${encodeURIComponent(term)}`);
@@ -58,9 +58,9 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
-    
+
     if (debounceTimer.current) window.clearTimeout(debounceTimer.current);
-    
+
     debounceTimer.current = window.setTimeout(() => {
       fetchOptions(term);
     }, 300);
@@ -77,8 +77,8 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
       <label className="text-xs text-slate-400 font-mono uppercase tracking-widest block">
         {label}
       </label>
-      
-      <div 
+
+      <div
         role="combobox"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
@@ -104,7 +104,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
       </div>
 
       {isOpen && (
-        <div 
+        <div
           id={`autocomplete-${endpoint}`}
           role="listbox"
           className="absolute z-[100] w-full mt-1 bg-slate-900 border border-slate-700 rounded shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
@@ -124,7 +124,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
               {loading && <Loader2 className="absolute right-2 top-2.5 text-cyan-500 animate-spin" size={14} />}
             </div>
           </div>
-          
+
           <div className="max-h-60 overflow-y-auto">
             {options.length > 0 ? (
               options.map((option) => (
@@ -141,15 +141,15 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
                   <div className="flex flex-col">
                     <span className="text-sm text-white font-medium">{option.nome}</span>
                     <div className="flex gap-2">
-                       <span className="text-[10px] text-slate-500 uppercase">IATA: {option.codigoIata}</span>
-                       <span className="text-[10px] text-cyan-600 uppercase">ICAO: {option.codigoIcao}</span>
+                      <span className="text-[10px] text-slate-500 uppercase">IATA: {option.codigoIata}</span>
+                      <span className="text-[10px] text-cyan-600 uppercase">ICAO: {option.codigoIcao}</span>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
               <div className="p-4 text-center text-xs text-slate-500 italic">
-                {searchTerm.length < 2 ? 'Type at least 2 characters...' : 'No results found'}
+                {searchTerm.length < 3 ? 'Digite no mínimo 3 caracteres...' : 'Nenhum resultado encontrado'}
               </div>
             )}
           </div>
