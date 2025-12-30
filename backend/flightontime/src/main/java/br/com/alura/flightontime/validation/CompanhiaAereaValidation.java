@@ -15,13 +15,13 @@ public class CompanhiaAereaValidation implements VooValidation {
     @Override
     public List<String> validar(VooDTO vooDTO) {
         List<String> listaErros = new ArrayList<>();
-        var companhiaAereaEncontrada = companhiaAereaRepository.findByCodigoIcaoAndAtivo(vooDTO.codigoIcaoCompanhiaAerea(), "Y");
+        var companhiaAereaEncontrada = companhiaAereaRepository
+                .findByCodigoIcaoAndAtivo(vooDTO.codigoIcaoCompanhiaAerea(), "Y");
 
-        if (companhiaAereaEncontrada != null && vooDTO.codigoIcaoCompanhiaAerea()!= null) {
-            System.out.println("Nome companhia aérea : " + companhiaAereaEncontrada.getNome());
-        } else {
+        if (companhiaAereaEncontrada == null || vooDTO.codigoIcaoCompanhiaAerea() == null) {
             listaErros.add("A companhia aérea não existe na base de dados.");
         }
+
         return listaErros;
     }
 }

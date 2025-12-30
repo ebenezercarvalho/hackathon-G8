@@ -6,10 +6,6 @@ import br.com.alura.flightontime.infra.exception.ErroConfiguracaoApiException;
 import br.com.alura.flightontime.infra.exception.RespostaInvalidaServicoExternoException;
 import br.com.alura.flightontime.infra.exception.ServicoExternoIndisponivelException;
 import br.com.alura.flightontime.infra.exception.ValidacaoDBException;
-import br.com.alura.flightontime.repository.AeroportoRepository;
-import br.com.alura.flightontime.repository.CompanhiaAereaRepository;
-import br.com.alura.flightontime.validation.AeroportoValidation;
-import br.com.alura.flightontime.validation.CompanhiaAereaValidation;
 import br.com.alura.flightontime.validation.VooValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,19 +20,6 @@ import java.util.List;
 
 @Service
 public class PrevisaoVooService {
-
-    @Autowired
-    private AeroportoRepository aeroportoRepository;
-
-    @Autowired
-    private CompanhiaAereaRepository companhiaAereaRepository;
-
-    @Autowired
-    private AeroportoValidation aeroportoValidation;
-
-    @Autowired
-    private CompanhiaAereaValidation companhiaAereaValidation;
-
     @Autowired
     private RestClient restClient;
 

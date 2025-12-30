@@ -34,7 +34,7 @@ public record VooDTO(
                 this.codigoIcaoVooOrigem(),
                 this.codigoIcaoVooDestino(),
                 this.codigoIcaoCompanhiaAerea(),
-                PeriodoDia.retornaPeriodo(this.dataPartida().getHour()).getPeriodo(),
+                PeriodoDia.retornaPeriodo(this.dataPartida().getHour()),
                 this.dataPartida().getHour(),
                 this.dataPartida().getDayOfWeek().getValue() - 1,
                 this.dataPartida().getMonthValue());

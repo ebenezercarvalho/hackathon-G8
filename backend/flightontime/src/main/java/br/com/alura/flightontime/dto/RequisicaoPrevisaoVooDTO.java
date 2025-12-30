@@ -24,7 +24,7 @@ public record RequisicaoPrevisaoVooDTO(
 
         @JsonProperty("periodo_dia")
         @Schema(description = "Período do dia com base na hora prevista de partida", example = "Tarde")
-        String periodoDia,
+        PeriodoDia periodoDia,
 
         @JsonProperty("partida_hora")
         @Schema(description = "Hora prevista para partida", example = "14")

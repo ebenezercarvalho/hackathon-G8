@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 uploads/*
 !uploads/.gitkeep
+.env
 
 ### STS ###
 .apt_generated

@@ -6,7 +6,6 @@ import br.com.alura.flightontime.model.Aeroporto;
 import br.com.alura.flightontime.model.CompanhiaAerea;
 import br.com.alura.flightontime.repository.AeroportoRepository;
 import br.com.alura.flightontime.repository.CompanhiaAereaRepository;
-import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +29,7 @@ public class AutoCompleteService {
         List<Aeroporto> aeroportosEncontrados = aeroportoRepository.buscaAutoComplete(termo, limite);
         List<AutoCompleteAeroportoDTO> resultados = new ArrayList<>();
         aeroportosEncontrados.forEach(aeroporto -> {
-            resultados.add(new AutoCompleteAeroportoDTO(aeroporto.getNomeAeroporto(), aeroporto.getCodigoIata(), aeroporto.getCodigoIcao()));
+            resultados.add(new AutoCompleteAeroportoDTO(aeroporto.getNomeAeroporto(), aeroporto.getCodigoIata(), aeroporto.getCodigoIcao(), aeroporto.getLatitude(), aeroporto.getLongitude()));
         });
         return resultados;
     }

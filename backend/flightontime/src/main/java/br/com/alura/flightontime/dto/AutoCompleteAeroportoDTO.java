@@ -14,5 +14,11 @@ public record AutoCompleteAeroportoDTO (
 
         @Schema(description = "Código ICAO do aeroporto", example = "SBGR")
         @Size(min = 4, max = 4, message = "O código ICAO do aeroporto possui 4 caracteres.")
-        String codigoIcao) {
+        String codigoIcao,
+
+        @Schema(description = "Latitude da localização do aeroporto", example = "-23.4355564117")
+        Double latitude,
+
+        @Schema(description = "Longitude da localização do aeroporto", example = "-46.4730567932")
+        Double longitude) {
 }

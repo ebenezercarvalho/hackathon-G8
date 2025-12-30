@@ -1,5 +1,7 @@
 package br.com.alura.flightontime.model;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum PeriodoDia {
     MANHA("Manhã"),
     TARDE("Tarde"),
@@ -12,6 +14,7 @@ public enum PeriodoDia {
         this.periodo = periodo;
     }
 
+    @JsonValue
     public String getPeriodo() {
         return periodo;
     }

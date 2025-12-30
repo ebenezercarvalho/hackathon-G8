@@ -2,7 +2,7 @@ package br.com.alura.flightontime.dto;
 
 import br.com.alura.flightontime.infra.exception.RespostaInvalidaServicoExternoException;
 import br.com.alura.flightontime.model.StatusPrevisao;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
@@ -12,15 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record RespostaPrevisaoDTO (
-        @JsonProperty("previsao")
+        @JsonAlias("previsao")
         @Schema(description = "Previsão do status do voo", example = "Atrasado", allowableValues = {"Atrasado", "No horário"})
         StatusPrevisao previsao,
 
-        @JsonProperty("probabilidade_atraso")
+        @JsonAlias("probabilidade_atraso")
         @Schema(description = "Probabilidade do vôo partir atrasado", example = "0.22")
         Double probabilidadeAtraso,
 
-        @JsonProperty("timestamp")
+        @JsonAlias("timestamp")
         @Schema(description = "Data e hora que a resposta foi processada", example = "2025-12-22T02:43:59.078Z")
         Timestamp timestamp) {
 
