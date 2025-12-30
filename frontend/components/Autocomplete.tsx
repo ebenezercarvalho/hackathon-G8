@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, Loader2 } from 'lucide-react';
+import { translations, Language } from '../translations';
 
 interface Option {
   nome: string;
@@ -13,11 +14,13 @@ interface AutocompleteProps {
   value: Option | null;
   onChange: (value: Option) => void;
   label: string;
+  lang: Language;
 }
 
 const API_BASE_URL = 'http://localhost:8080';
 
-const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, value, onChange, label }) => {
+const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, value, onChange, label, lang }) => {
+  const t = translations[lang];
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [options, setOptions] = useState<Option[]>([]);
@@ -115,7 +118,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
               <input
                 autoFocus
                 type="text"
-                placeholder="Search..."
+                placeholder={t.searchPlaceholder}
                 className="w-full bg-slate-800 border-none rounded p-2 pl-8 text-xs text-white focus:ring-0 outline-none"
                 value={searchTerm}
                 onChange={handleSearchChange}
@@ -149,7 +152,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
               ))
             ) : (
               <div className="p-4 text-center text-xs text-slate-500 italic">
-                {searchTerm.length < 3 ? 'Digite no mínimo 3 caracteres...' : 'Nenhum resultado encontrado'}
+                {searchTerm.length < 3 ? t.typeMinChars : t.noResults}
               </div>
             )}
           </div>

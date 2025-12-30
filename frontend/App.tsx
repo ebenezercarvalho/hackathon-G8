@@ -117,6 +117,7 @@ function App() {
                   endpoint="aeroportos"
                   value={formData.origin}
                   onChange={(val) => handleAutocompleteChange('origin', val as Airport)}
+                  lang={lang}
                 />
                 <Autocomplete
                   label={t.destination}
@@ -124,6 +125,7 @@ function App() {
                   endpoint="aeroportos"
                   value={formData.destination}
                   onChange={(val) => handleAutocompleteChange('destination', val as Airport)}
+                  lang={lang}
                 />
               </div>
 
@@ -133,6 +135,7 @@ function App() {
                 endpoint="companhia-aerea"
                 value={formData.airline}
                 onChange={(val) => handleAutocompleteChange('airline', val as Airline)}
+                lang={lang}
               />
             </div>
 
