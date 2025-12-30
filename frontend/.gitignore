@@ -35,3 +35,6 @@ Thumbs.db
 
 # Opcional: Se você usa TypeScript
 *.tsbuildinfo
+
+# Vite cache
+.vite/
