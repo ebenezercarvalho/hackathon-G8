@@ -38,7 +38,8 @@ export const translations = {
     tempRange: "Temp Range",
     systemOnline: "SYSTEM ONLINE",
     forecastUnavailable: "Forecast unavailable at the moment. Please make a new query when there are 15 days or less remaining until your flight date.",
-    weatherDisclaimer: "Please note that all weather forecasts are subject to variations. We recommend checking for updates close to the departure time."
+    weatherDisclaimer: "Please note that all weather forecasts are subject to variations. We recommend checking for updates close to the departure time.",
+    weatherAttribution: "Weather data by"
   },
   pt: {
     title: "FlightOps Control",
@@ -77,7 +78,8 @@ export const translations = {
     tempRange: "Intervalo de Temp",
     systemOnline: "SISTEMA ONLINE",
     forecastUnavailable: "Previsão indisponível no momento. Por favor, realize uma nova consulta quando faltarem 15 dias ou menos para a data do seu embarque.",
-    weatherDisclaimer: "Lembramos que toda previsão meteorológica está sujeita a variações. Recomendamos acompanhar as atualizações próximas ao horário de partida."
+    weatherDisclaimer: "Lembramos que toda previsão meteorológica está sujeita a variações. Recomendamos acompanhar as atualizações próximas ao horário de partida.",
+    weatherAttribution: "Dados meteorológicos por"
   },
   es: {
     title: "FlightOps Control",
@@ -116,6 +118,7 @@ export const translations = {
     tempRange: "Rango de Temp",
     systemOnline: "SISTEMA EN LÍNEA",
     forecastUnavailable: "Pronóstico no disponible en este momento. Por favor, realice una nueva consulta cuando falten 15 días o menos para la fecha de su vuelo.",
-    weatherDisclaimer: "Le recordamos que todo pronóstico meteorológico está sujeto a variaciones. Recomendamos seguir las actualizaciones cerca de la hora de salida."
+    weatherDisclaimer: "Le recordamos que todo pronóstico meteorológico está sujeto a variaciones. Recomendamos seguir las actualizaciones cerca de la hora de salida.",
+    weatherAttribution: "Datos meteorológicos por"
   }
 };

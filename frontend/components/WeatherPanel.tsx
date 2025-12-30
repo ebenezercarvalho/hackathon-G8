@@ -72,6 +72,18 @@ const WeatherPanel: React.FC<WeatherPanelProps> = ({ weather, lang }) => {
           </div>
         ))}
       </div>
+
+      <div className="text-center text-xs text-slate-500 mt-6 pt-4 border-t border-slate-800">
+        {t.weatherAttribution}{' '}
+        <a
+          href="https://open-meteo.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-cyan-500 hover:text-cyan-400 underline transition-colors"
+        >
+          Open-Meteo.com
+        </a>
+      </div>
     </div>
   );
 };
