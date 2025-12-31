@@ -47,13 +47,25 @@ export const predictFlightDelay = async (data: FlightFormData): Promise<Predicti
     const result: RespostaPrevisaoDTO = await response.json();
 
     // 3. Fetch Weather for UI (Origin City)
-    // Extract city from "City Name - Airport Name" or similar
-    const cityName = data.origin.nome.split('-')[0].trim() || 'Sao Paulo';
+    // Extract city from "City Name - Airport Name" or "City/State"
+    // Remove "Aeroporto", "Intl", etc. if present in the city part
+    let cityName = data.origin.nome.split('-')[0].trim();
+    cityName = cityName.replace(/Aeroporto|International|Intl|Airport/gi, '').trim();
+
+    // Fallback if empty
+    if (!cityName || cityName.length < 3) {
+      console.warn(`Extracted city name '${cityName}' is too short or empty. Using default.`);
+      cityName = 'Sao Paulo';
+    }
+
+    console.log(`Fetching weather for extracted city: '${cityName}' (Origin: ${data.origin.nome})`);
     const weather = await fetchFlightWeather(cityName, data.date);
 
     return {
       isDelayed: result.previsao === "Atrasado",
-      confidence: Math.round((1 - result.probabilidade_atraso) * 100),
+      confidence: (typeof result.probabilidade_atraso === 'number' && !isNaN(result.probabilidade_atraso))
+        ? Math.round((1 - result.probabilidade_atraso) * 100)
+        : 0,
       timestamp: result.timestamp,
       weather
     };

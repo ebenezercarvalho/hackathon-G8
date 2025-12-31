@@ -58,7 +58,7 @@ const WeatherPanel: React.FC<WeatherPanelProps> = ({ weather, lang }) => {
         <div className="flex items-center gap-3">
           <Cloud className="text-slate-500" size={20} aria-hidden="true" />
           <span className="text-lg font-bold text-white uppercase tracking-tight">
-            {weather.condition}
+            {t[weather.condition.toLowerCase()] || weather.condition}
           </span>
         </div>
       </div>
@@ -67,22 +67,24 @@ const WeatherPanel: React.FC<WeatherPanelProps> = ({ weather, lang }) => {
         {items.map((item, idx) => (
           <div key={idx} className="flex flex-col items-center justify-center p-6 bg-slate-950/50 rounded-xl border border-slate-800 hover:border-cyan-500/30 transition-all group">
             <div className={`mb-3 ${item.color} transform group-hover:scale-110 transition-transform`} aria-hidden="true">{item.icon}</div>
-            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">{item.label}</span>
+            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1 text-center">{item.label}</span>
             <span className="text-xl font-mono font-bold text-slate-100">{item.value}</span>
           </div>
         ))}
       </div>
 
       <div className="text-center text-xs text-slate-500 mt-6 pt-4 border-t border-slate-800">
-        {t.weatherAttribution}{' '}
-        <a
-          href="https://open-meteo.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-cyan-500 hover:text-cyan-400 underline transition-colors"
-        >
-          Open-Meteo.com
-        </a>
+        <p className="mb-2">
+          {t.weatherAttribution}{' '}
+          <a
+            href="https://open-meteo.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-cyan-500 hover:text-cyan-400 underline transition-colors"
+          >
+            Open-Meteo.com
+          </a>
+        </p>
       </div>
     </div>
   );

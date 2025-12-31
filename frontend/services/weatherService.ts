@@ -55,6 +55,7 @@ const fetchCoordinates = async (city: string): Promise<GeoLocation | null> => {
     const data = await response.json();
 
     if (!data.results || data.results.length === 0) {
+      console.warn(`Geocoding found no results for city: '${city}'`);
       return null;
     }
 
@@ -105,20 +106,28 @@ const fetchWeather = async (lat: number, lon: number, date?: string): Promise<We
       conditionCode = daily.weather_code[dateIndex];
       windSpeed = daily.wind_speed_10m_max[dateIndex];
       humidity = 50; // Approximated
-      rainProb = daily.precipitation_probability_max ? daily.precipitation_probability_max[dateIndex] : (daily.precipitation_sum && daily.precipitation_sum[dateIndex] > 0 ? 60 : 10);
+
+      // Robust rain probability calculation
+      if (daily.precipitation_probability_max && daily.precipitation_probability_max[dateIndex] !== null) {
+        rainProb = daily.precipitation_probability_max[dateIndex];
+      } else if (daily.precipitation_sum && daily.precipitation_sum[dateIndex] !== null) {
+        rainProb = daily.precipitation_sum[dateIndex] > 0 ? 60 : 10;
+      } else {
+        rainProb = 0;
+      }
     }
   }
 
   return {
-    temp: temp,
-    minTemp: minTemp,
-    maxTemp: maxTemp,
-    condition: mapWmoCodeToCondition(conditionCode),
-    windSpeed: windSpeed,
-    humidity: humidity,
-    rainProbability: rainProb,
-    pressure: current.pressure_msl,
-    clouds: current.cloud_cover
+    temp: temp || 0,
+    minTemp: minTemp || 0,
+    maxTemp: maxTemp || 0,
+    condition: mapWmoCodeToCondition(conditionCode || 0),
+    windSpeed: windSpeed || 0,
+    humidity: humidity || 0,
+    rainProbability: rainProb || 0,
+    pressure: current.pressure_msl || 0,
+    clouds: current.cloud_cover || 0
   };
 }
 

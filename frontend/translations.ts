@@ -23,7 +23,7 @@ export const translations = {
     highDelayProb: "Delayed",
     onTimeLikely: "On Time",
     weatherForecast: "Meteorology Forecast",
-    tempMinMax: "Temp Min/Max",
+    tempMinMax: "Temperature Min/Max",
     windSpeed: "Wind Speed",
     humidity: "Humidity",
     rainProb: "Rain Prob.",
@@ -45,7 +45,14 @@ export const translations = {
     error502: "We couldn't complete your request at this time. Please refresh the page and try again.",
     error503: "Our prediction service is temporarily unavailable. We'll be back soon!",
     errorWeather: "Weather service temporarily unavailable. We're continuing with other flight analyses.",
-    errorML: "Prediction system unavailable at the moment. Please refresh and try again in a few minutes."
+    errorML: "Prediction system unavailable at the moment. Please refresh and try again in a few minutes.",
+    // Weather Conditions
+    clear: "Clear",
+    clouds: "Clouds",
+    rain: "Rain",
+    snow: "Snow",
+    thunderstorm: "Thunderstorm",
+    unknown: "Unknown"
   },
   pt: {
     title: "FlightOps Control",
@@ -69,10 +76,10 @@ export const translations = {
     highDelayProb: "Atrasado",
     onTimeLikely: "Pontual",
     weatherForecast: "Previsão Meteorológica",
-    tempMinMax: "Temp Mín/Máx",
+    tempMinMax: "Temperatura Mín/Máx",
     windSpeed: "Velocidade do Vento",
     humidity: "Umidade",
-    rainProb: "Prob. de Chuva",
+    rainProb: "Probabilidade de Chuva",
     connectingNodes: "Conectando aos nós meteorológicos de aviação...",
     downloadReport: "Baixar PDF de Análise",
     generatingReport: "Gerando Relatório...",
@@ -91,7 +98,14 @@ export const translations = {
     error502: "Não conseguimos completar sua solicitação no momento. Atualize a página e tente novamente.",
     error503: "Nosso serviço de previsão está temporariamente indisponível. Voltamos em breve!",
     errorWeather: "Serviço de clima temporariamente indisponível. Continuamos com as outras análises de voo.",
-    errorML: "Sistema de previsão indisponível no momento. Atualize a página e tente em alguns minutos."
+    errorML: "Sistema de previsão indisponível no momento. Atualize a página e tente em alguns minutos.",
+    // Weather Conditions
+    clear: "Limpo",
+    clouds: "Nublado",
+    rain: "Chuva",
+    snow: "Neve",
+    thunderstorm: "Tempestade",
+    unknown: "Desconhecido"
   },
   es: {
     title: "FlightOps Control",
@@ -115,10 +129,10 @@ export const translations = {
     highDelayProb: "Retrasado",
     onTimeLikely: "A tiempo",
     weatherForecast: "Pronóstico Meteorológico",
-    tempMinMax: "Temp Mín/Máx",
+    tempMinMax: "Temperatura Mín/Máx",
     windSpeed: "Velocidad del Viento",
     humidity: "Humedad",
-    rainProb: "Prob. de Lluvia",
+    rainProb: "Probabilidad de Lluvia",
     connectingNodes: "Conectando a los nodos meteorológicos de aviación...",
     downloadReport: "Descargar PDF de Análisis",
     generatingReport: "Generando Informe...",
@@ -137,6 +151,13 @@ export const translations = {
     error502: "No pudimos completar su solicitud en este momento. Actualice la página e inténtelo de nuevo.",
     error503: "Nuestro servicio de predicción no está disponible temporalmente. ¡Volveremos pronto!",
     errorWeather: "Servicio del clima temporalmente no disponible. Continuamos con los otros análisis de vuelo.",
-    errorML: "Sistema de predicción no disponible en este momento. Actualice la página e intente en unos minutos."
+    errorML: "Sistema de predicción no disponible en este momento. Actualice la página e intente en unos minutos.",
+    // Weather Conditions
+    clear: "Despejado",
+    clouds: "Nublado",
+    rain: "Lluvia",
+    snow: "Nieve",
+    thunderstorm: "Tormenta",
+    unknown: "Desconocido"
   }
 };
