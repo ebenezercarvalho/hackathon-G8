@@ -17,6 +17,7 @@ function App() {
 
   const [loading, setLoading] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [formData, setFormData] = useState<FlightFormData>({
     origin: null,
@@ -38,6 +39,7 @@ function App() {
     setFormData({ origin: null, destination: null, airline: null, date: '', time: '' });
     setResult(null);
     setHasStarted(false);
+    setResetKey(prev => prev + 1);
   };
 
   const handleSubmit = async () => {
@@ -130,6 +132,7 @@ function App() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Autocomplete
+                  key={`origin-${resetKey}`}
                   label={t.origin}
                   placeholder={t.searchPlaceholder}
                   endpoint="aeroportos"
@@ -138,6 +141,7 @@ function App() {
                   lang={lang}
                 />
                 <Autocomplete
+                  key={`destination-${resetKey}`}
                   label={t.destination}
                   placeholder={t.searchPlaceholder}
                   endpoint="aeroportos"
@@ -148,6 +152,7 @@ function App() {
               </div>
 
               <Autocomplete
+                key={`airline-${resetKey}`}
                 label={t.airline}
                 placeholder={t.searchPlaceholder}
                 endpoint="companhia-aerea"
