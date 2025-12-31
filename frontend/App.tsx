@@ -243,11 +243,7 @@ function App() {
                 lang={lang}
               />
 
-              <div className="text-center pt-8 border-t border-slate-800">
-                <p className="text-xs text-slate-500 font-mono max-w-2xl mx-auto italic">
-                  {t.weatherDisclaimer}
-                </p>
-              </div>
+
             </div>
           )}
         </div>

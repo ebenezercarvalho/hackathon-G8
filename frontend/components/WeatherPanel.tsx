@@ -85,6 +85,9 @@ const WeatherPanel: React.FC<WeatherPanelProps> = ({ weather, lang }) => {
             Open-Meteo.com
           </a>
         </p>
+        <p className="max-w-2xl mx-auto italic mt-2">
+          {t.weatherDisclaimer}
+        </p>
       </div>
     </div>
   );
