@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Plane, Calendar, Clock, MapPin, Activity, ArrowRight, Languages, Loader2 } from 'lucide-react';
 import { FlightFormData, PredictionResult, Language, Airport, Airline } from './types';
-import { predictFlightDelay } from './services/predictionService';
+import { predictFlightDelay, ApiError } from './services/predictionService';
+import { useToast } from './context/ToastContext';
 import { translations } from './translations';
 import PredictionResultCard from './components/PredictionResult';
 import WeatherPanel from './components/WeatherPanel';
@@ -12,6 +13,7 @@ function App() {
   // 2) Set Portuguese as the default host language
   const [lang, setLang] = useState<Language>('pt');
   const t = translations[lang];
+  const { showToast } = useToast();
 
   const [loading, setLoading] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
@@ -40,7 +42,7 @@ function App() {
 
   const handleSubmit = async () => {
     if (!formData.origin || !formData.destination || !formData.date || !formData.airline || !formData.time) {
-      alert("Please fill in all required fields.");
+      showToast(t.error400, 'error');
       return;
     }
 
@@ -51,9 +53,25 @@ function App() {
     try {
       const prediction = await predictFlightDelay(formData);
       setResult(prediction);
+
+      if (prediction.weather?.condition === 'Unknown') {
+        showToast(t.errorWeather, 'info');
+      }
+
     } catch (error: any) {
       console.error(error);
-      alert(`Error predicting delay: ${error.message}`);
+      if (error instanceof ApiError) {
+        switch (error.status) {
+          case 400: showToast(t.error400, 'error'); break;
+          case 500: showToast(t.error500, 'error'); break;
+          case 502: showToast(t.error502, 'error'); break;
+          case 503: showToast(t.error503, 'error'); break;
+          default: showToast(t.error500, 'error');
+        }
+      } else {
+        // Network error or untyped error -> assume System Unavailable
+        showToast(t.errorML, 'error');
+      }
     } finally {
       setLoading(false);
     }

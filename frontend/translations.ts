@@ -39,7 +39,13 @@ export const translations = {
     systemOnline: "SYSTEM ONLINE",
     forecastUnavailable: "Forecast unavailable at the moment. Please make a new query when there are 15 days or less remaining until your flight date.",
     weatherDisclaimer: "Please note that all weather forecasts are subject to variations. We recommend checking for updates close to the departure time.",
-    weatherAttribution: "Weather data by"
+    weatherAttribution: "Weather data by",
+    error400: "Oops! Seems like some information is missing. Check the origin and destination airports and try again.",
+    error500: "Something unexpected happened while processing your request. Our team has been notified. Please try again in a moment.",
+    error502: "We couldn't complete your request at this time. Please refresh the page and try again.",
+    error503: "Our prediction service is temporarily unavailable. We'll be back soon!",
+    errorWeather: "Weather service temporarily unavailable. We're continuing with other flight analyses.",
+    errorML: "Prediction system unavailable at the moment. Please refresh and try again in a few minutes."
   },
   pt: {
     title: "FlightOps Control",
@@ -79,7 +85,13 @@ export const translations = {
     systemOnline: "SISTEMA ONLINE",
     forecastUnavailable: "Previsão indisponível no momento. Por favor, realize uma nova consulta quando faltarem 15 dias ou menos para a data do seu embarque.",
     weatherDisclaimer: "Lembramos que toda previsão meteorológica está sujeita a variações. Recomendamos acompanhar as atualizações próximas ao horário de partida.",
-    weatherAttribution: "Dados meteorológicos por"
+    weatherAttribution: "Dados meteorológicos por",
+    error400: "Ops! Parece que faltou alguma informação na sua busca. Verifique os aeroportos de origem e destino e tente novamente.",
+    error500: "Ocorreu um imprevisto ao processar sua solicitação. Nossa equipe já foi notificada. Tente novamente em alguns instantes.",
+    error502: "Não conseguimos completar sua solicitação no momento. Atualize a página e tente novamente.",
+    error503: "Nosso serviço de previsão está temporariamente indisponível. Voltamos em breve!",
+    errorWeather: "Serviço de clima temporariamente indisponível. Continuamos com as outras análises de voo.",
+    errorML: "Sistema de previsão indisponível no momento. Atualize a página e tente em alguns minutos."
   },
   es: {
     title: "FlightOps Control",
@@ -119,6 +131,12 @@ export const translations = {
     systemOnline: "SISTEMA EN LÍNEA",
     forecastUnavailable: "Pronóstico no disponible en este momento. Por favor, realice una nueva consulta cuando falten 15 días o menos para la fecha de su vuelo.",
     weatherDisclaimer: "Le recordamos que todo pronóstico meteorológico está sujeto a variaciones. Recomendamos seguir las actualizaciones cerca de la hora de salida.",
-    weatherAttribution: "Datos meteorológicos por"
+    weatherAttribution: "Datos meteorológicos por",
+    error400: "¡Ups! Parece que falta alguna información en su búsqueda. Verifique los aeropuertos de origen y destino e inténtelo de nuevo.",
+    error500: "Ocurrió un imprevisto al procesar su solicitud. Nuestro equipo ya ha sido notificado. Inténtelo de nuevo en unos momentos.",
+    error502: "No pudimos completar su solicitud en este momento. Actualice la página e inténtelo de nuevo.",
+    error503: "Nuestro servicio de predicción no está disponible temporalmente. ¡Volveremos pronto!",
+    errorWeather: "Servicio del clima temporalmente no disponible. Continuamos con los otros análisis de vuelo.",
+    errorML: "Sistema de predicción no disponible en este momento. Actualice la página e intente en unos minutos."
   }
 };
