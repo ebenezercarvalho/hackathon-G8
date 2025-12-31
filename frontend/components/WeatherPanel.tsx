@@ -67,7 +67,7 @@ const WeatherPanel: React.FC<WeatherPanelProps> = ({ weather, lang }) => {
         {items.map((item, idx) => (
           <div key={idx} className="flex flex-col items-center justify-center p-6 bg-slate-950/50 rounded-xl border border-slate-800 hover:border-cyan-500/30 transition-all group">
             <div className={`mb-3 ${item.color} transform group-hover:scale-110 transition-transform`} aria-hidden="true">{item.icon}</div>
-            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1 text-center">{item.label}</span>
+            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1 text-center whitespace-pre-line">{item.label}</span>
             <span className="text-xl font-mono font-bold text-slate-100">{item.value}</span>
           </div>
         ))}
