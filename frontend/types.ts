@@ -43,8 +43,13 @@ export interface WeatherCondition {
 
 // Matches RespostaPrevisaoDTO from Swagger
 export interface RespostaPrevisaoDTO {
-  previsao: "Atrasado" | "No horário";
-  probabilidade_atraso: number;
+  previsao: "Atrasado" | "Pontual" | "No horário";
+  probabilidadeAtraso?: number; // Old field (camelCase from backend)
+  probabilidade_atraso?: number; // Old field (snake_case)
+  confianca_percentual?: {
+    source: string;
+    parsedValue: number;
+  };
   timestamp: string;
 }
 

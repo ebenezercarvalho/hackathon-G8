@@ -63,9 +63,20 @@ export const predictFlightDelay = async (data: FlightFormData): Promise<Predicti
 
     return {
       isDelayed: result.previsao === "Atrasado",
-      confidence: (typeof result.probabilidade_atraso === 'number' && !isNaN(result.probabilidade_atraso))
-        ? Math.round((1 - result.probabilidade_atraso) * 100)
-        : 0,
+      confidence: (() => {
+        // Try new field first (confianca_percentual.parsedValue)
+        if (result.confianca_percentual?.parsedValue !== undefined &&
+          !isNaN(result.confianca_percentual.parsedValue)) {
+          return Math.round(result.confianca_percentual.parsedValue);
+        }
+        // Fallback to old probabilidade_atraso field (calculate from delay probability)
+        const delayProb = result.probabilidadeAtraso ?? result.probabilidade_atraso;
+        if (typeof delayProb === 'number' && !isNaN(delayProb)) {
+          return Math.round((1 - delayProb) * 100);
+        }
+        // Default to 0 if no valid data
+        return 0;
+      })(),
       timestamp: result.timestamp,
       weather
     };
