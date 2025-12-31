@@ -109,7 +109,6 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
       {isOpen && (
         <div
           id={`autocomplete-${endpoint}`}
-          role="listbox"
           className="absolute z-[100] w-full mt-1 bg-slate-900 border border-slate-700 rounded shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
         >
           <div className="p-2 border-b border-slate-800 bg-slate-950/50">
@@ -119,6 +118,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
                 autoFocus
                 type="text"
                 placeholder={t.searchPlaceholder}
+                aria-label={t.searchPlaceholder}
                 className="w-full bg-slate-800 border-none rounded p-2 pl-8 text-xs text-white focus:ring-0 outline-none"
                 value={searchTerm}
                 onChange={handleSearchChange}
@@ -128,7 +128,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
             </div>
           </div>
 
-          <div className="max-h-60 overflow-y-auto">
+          <div className="max-h-60 overflow-y-auto" role="listbox">
             {options.length > 0 ? (
               options.map((option) => (
                 <div

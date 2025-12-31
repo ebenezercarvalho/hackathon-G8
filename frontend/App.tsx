@@ -165,8 +165,9 @@ function App() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs text-slate-400 font-mono block uppercase">{t.date}</label>
+                  <label htmlFor="date" className="text-xs text-slate-400 font-mono block uppercase">{t.date}</label>
                   <input
+                    id="date"
                     type="date"
                     name="date"
                     value={formData.date}
@@ -176,8 +177,9 @@ function App() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs text-slate-400 font-mono block uppercase">{t.exactTime}</label>
+                  <label htmlFor="time" className="text-xs text-slate-400 font-mono block uppercase">{t.exactTime}</label>
                   <input
+                    id="time"
                     type="time"
                     name="time"
                     value={formData.time}

@@ -1,48 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FlightOps Control</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['JetBrains Mono', 'monospace'],
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlightOps Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            cyan: {
+              400: '#22d3ee',
+              500: '#06b6d4',
+              900: '#164e63',
             },
-            colors: {
-              cyan: {
-                400: '#22d3ee',
-                500: '#06b6d4',
-                900: '#164e63',
-              },
-              slate: {
-                850: '#1e293b',
-                900: '#0f172a',
-                950: '#020617',
-              }
-            },
-            backgroundImage: {
-              'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+            slate: {
+              850: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
             }
+          },
+          backgroundImage: {
+            'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
           }
         }
       }
-    </script>
-    <style>
-      body {
-        background-color: #020617;
-        color: #e2e8f0;
-      }
-      .bg-grid {
-        background-size: 40px 40px;
-        mask-image: linear-gradient(to bottom, transparent, 10%, black, 90%, transparent);
-      }
-    </style>
+    }
+  </script>
+  <style>
+    body {
+      background-color: #020617;
+      color: #e2e8f0;
+    }
+
+    .bg-grid {
+      background-size: 40px 40px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent, 10%, black, 90%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, 10%, black, 90%, transparent);
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -56,10 +61,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
-  <body>
-    <div id="root"></div>
+
+<body>
+  <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>
