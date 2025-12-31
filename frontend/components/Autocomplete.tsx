@@ -83,7 +83,8 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
 
       <div
         role="combobox"
-        aria-expanded={isOpen}
+        aria-expanded={isOpen ? "true" : "false"}
+        aria-label={label}
         aria-haspopup="listbox"
         aria-controls={`autocomplete-${endpoint}`}
         tabIndex={0}
@@ -134,7 +135,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
                 <div
                   key={option.codigoIcao}
                   role="option"
-                  aria-selected={value?.codigoIcao === option.codigoIcao}
+                  aria-selected={value?.codigoIcao === option.codigoIcao ? "true" : "false"}
                   onClick={() => handleSelect(option)}
                   className={`
                     px-4 py-3 cursor-pointer hover:bg-cyan-500/10 transition-colors border-l-2
