@@ -2,8 +2,6 @@ import React from 'react';
 import { PredictionResult, Language } from '../types';
 import { AlertTriangle, CheckCircle } from 'lucide-react';
 import { translations } from '../translations';
-import ConfidenceGauge from './ConfidenceGauge';
-import OnTimeProgressBar from './OnTimeProgressBar';
 
 interface PredictionResultProps {
   result: PredictionResult;
@@ -18,38 +16,54 @@ const PredictionResultCard: React.FC<PredictionResultProps> = ({ result, lang })
 
   return (
     <div className={`
-      relative overflow-hidden rounded-xl border-2 p-6 md:p-10 text-center transition-all duration-500
+      relative overflow-hidden rounded-2xl border border-white/10 p-8 md:p-12 text-center transition-all duration-700
       ${result.isDelayed
-        ? 'border-red-500 bg-red-950/20 shadow-[0_0_50px_-12px_rgba(239,68,68,0.25)]'
-        : 'border-green-500 bg-green-950/20 shadow-[0_0_50px_-12px_rgba(34,197,94,0.25)]'
+        ? 'bg-red-950/20 shadow-[0_0_50px_-12px_rgba(239,68,68,0.15)]'
+        : 'bg-green-950/20 shadow-[0_0_50px_-12px_rgba(34,197,94,0.15)]'
       }
     `}>
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.1)_1px,transparent_1px)] bg-[size:100%_4px] opacity-20 pointer-events-none" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" aria-hidden="true" />
 
       <div className="relative z-10 flex flex-col items-center justify-center">
         {result.isDelayed ? (
           <>
-            <AlertTriangle size={64} className="text-red-500 mb-4 animate-pulse" aria-hidden="true" />
-            <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600 uppercase mb-8 tracking-tighter">
+            <div className="p-4 bg-red-500/10 rounded-full mb-6 ring-1 ring-red-500/20">
+              <AlertTriangle size={48} className="text-red-500 animate-pulse" aria-hidden="true" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-white uppercase mb-2 tracking-tighter">
               {t.highDelayProb}
             </h2>
           </>
         ) : (
           <>
-            <CheckCircle size={64} className="text-green-500 mb-4" aria-hidden="true" />
-            <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 uppercase mb-8 tracking-tighter">
+            <div className="p-4 bg-green-500/10 rounded-full mb-6 ring-1 ring-green-500/20">
+              <CheckCircle size={48} className="text-green-500" aria-hidden="true" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-white uppercase mb-2 tracking-tighter">
               {t.onTimeLikely}
             </h2>
           </>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-4 border-t border-white/10 pt-8">
-          <ConfidenceGauge confidence={result.confidence} lang={lang} />
-          <OnTimeProgressBar
-            confidence={onTimeProb}
-            isDelayed={result.isDelayed}
-            lang={lang}
-          />
+        <div className="w-full mt-10 border-t border-white/5 pt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.2em]">
+              {t.confidence}
+            </span>
+            <span className={`text-4xl font-black font-mono tracking-tighter ${result.confidence > 70 ? 'text-green-500' : result.confidence > 40 ? 'text-yellow-500' : 'text-red-500'
+              }`}>
+              {result.confidence}%
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.2em]">
+              {t.onTimeProbability}
+            </span>
+            <span className="text-4xl font-black font-mono text-cyan-500 tracking-tighter">
+              {onTimeProb}%
+            </span>
+          </div>
         </div>
       </div>
     </div>
