@@ -11,9 +11,6 @@ interface PredictionResultProps {
 const PredictionResultCard: React.FC<PredictionResultProps> = ({ result, lang }) => {
   const t = translations[lang];
 
-  // Calculate on-time probability for the progress bar
-  const onTimeProb = result.isDelayed ? 100 - result.confidence : result.confidence;
-
   return (
     <div className={`
       relative overflow-hidden rounded-2xl border border-white/10 p-8 md:p-12 text-center transition-all duration-700
@@ -45,23 +42,14 @@ const PredictionResultCard: React.FC<PredictionResultProps> = ({ result, lang })
           </>
         )}
 
-        <div className="w-full mt-10 border-t border-white/5 pt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="w-full mt-10 border-t border-white/5 pt-10 flex flex-col items-center">
           <div className="flex flex-col items-center gap-1">
             <span className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.2em]">
               {t.confidence}
             </span>
-            <span className={`text-4xl font-black font-mono tracking-tighter ${result.confidence > 70 ? 'text-green-500' : result.confidence > 40 ? 'text-yellow-500' : 'text-red-500'
+            <span className={`text-5xl font-black font-mono tracking-tighter ${result.confidence > 70 ? 'text-green-500' : result.confidence > 40 ? 'text-yellow-500' : 'text-red-500'
               }`}>
               {result.confidence}%
-            </span>
-          </div>
-
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.2em]">
-              {t.onTimeProbability}
-            </span>
-            <span className="text-4xl font-black font-mono text-cyan-500 tracking-tighter">
-              {onTimeProb}%
             </span>
           </div>
         </div>
