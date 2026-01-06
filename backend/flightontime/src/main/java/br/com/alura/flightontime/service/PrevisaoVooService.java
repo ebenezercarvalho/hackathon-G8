@@ -51,7 +51,7 @@ public class PrevisaoVooService {
                     .body(this.converteParaRequestPrevisaoDataScienceDTO(requestPrevisaoDTO))
                     .retrieve()
                     .body(ResponsePrevisaoDataScienceDTO.class);
-            resposta.validacao();
+            this.validacao(resposta);
             return this.converteParaResponsePrevisaoDTO(resposta);
         } catch (IllegalArgumentException ex) {
             throw new ErroConfiguracaoApiException("Erro interno do servidor");
@@ -93,6 +93,13 @@ public class PrevisaoVooService {
         }
     }
 
+    private void validacao(ResponsePrevisaoDataScienceDTO dto) throws RespostaInvalidaServicoExternoException {
+        if (dto == null || dto.probabilidadeAtraso() == null || 
+            dto.probabilidadeAtraso() < 0 || dto.probabilidadeAtraso() > 1) {
+            
+            throw new RespostaInvalidaServicoExternoException("Resposta inválida do serviço de previsão");
+        }
+    }
 
 
 }

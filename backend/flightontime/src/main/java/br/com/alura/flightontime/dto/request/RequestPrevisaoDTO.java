@@ -1,6 +1,7 @@
 package br.com.alura.flightontime.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,5 +27,6 @@ public record RequestPrevisaoDTO(
 
         @Schema(description = "Data e hora prevista para a partida", example = "2025-12-25T14:30:00") 
         @NotNull(message = "Data de partida é obrigatória.") 
+        @Future(message = "A data de partida deve ser uma data futura.")
         LocalDateTime dataPartida) {
 }
