@@ -1,7 +1,7 @@
 package br.com.alura.flightontime.controller;
 
-import br.com.alura.flightontime.dto.AutoCompleteAeroportoDTO;
-import br.com.alura.flightontime.dto.AutoCompleteCompanhiaAereaDTO;
+import br.com.alura.flightontime.dto.response.ResponseAutoCompleteAeroportoDTO;
+import br.com.alura.flightontime.dto.response.ResponseAutoCompleteCompanhiaAereaDTO;
 import br.com.alura.flightontime.service.AutoCompleteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,7 +31,7 @@ public class AutoCompleteController {
     })
     @CrossOrigin(origins = "*")
     @GetMapping("/aeroportos")
-    public ResponseEntity<List<AutoCompleteAeroportoDTO>> autoCompleteAeroporto(
+    public ResponseEntity<List<ResponseAutoCompleteAeroportoDTO>> autoCompleteAeroporto(
             @Parameter(
                     description = "Texto para busca por nome do aeroporto, código IATA ou ICAO",
                     example = "GRU",
@@ -52,13 +52,13 @@ public class AutoCompleteController {
     })
     @CrossOrigin(origins = "*")
     @GetMapping("/companhia-aerea")
-    public ResponseEntity<List<AutoCompleteCompanhiaAereaDTO>> autoCompleteCompanhiaAerea(
+    public ResponseEntity<List<ResponseAutoCompleteCompanhiaAereaDTO>> autoCompleteCompanhiaAerea(
             @Parameter(
                     description = "Texto para busca por nome, código IATA ou ICAO",
                     example = "GLO",
                     required = true)
             @RequestParam String termo) {
-        if (termo == null || termo.length() < 3) {
+        if (termo == null || termo.length() < 2) {
             return ResponseEntity.ok(List.of());
         }
 

@@ -1,10 +1,10 @@
-package br.com.alura.flightontime.dto;
+package br.com.alura.flightontime.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 
 @Schema(description = "Resposta à solicitação de busca autocomplete de companhia aérea.")
-public record AutoCompleteCompanhiaAereaDTO(
+public record ResponseAutoCompleteCompanhiaAereaDTO(
         @Schema(description = "Nome da companhia aérea", example = "Gol Transportes Aéreos")
         String nome,
 

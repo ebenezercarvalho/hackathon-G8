@@ -1,7 +1,7 @@
 package br.com.alura.flightontime.controller;
 
-import br.com.alura.flightontime.dto.RespostaPrevisaoDTO;
-import br.com.alura.flightontime.dto.VooDTO;
+import br.com.alura.flightontime.dto.request.RequestPrevisaoDTO;
+import br.com.alura.flightontime.dto.response.ResponsePrevisaoDTO;
 import br.com.alura.flightontime.service.PrevisaoVooService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,14 +25,14 @@ public class PredictController {
 
     @Operation(summary = "Previsão de atrasos de vôo", description = "Retorna a previsão de pontualidade de um determinado vôo.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Previsão realizada com sucesso"),
+        @ApiResponse(responseCode = "200", description = "Previsão realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Parâmetros inválidos ou incompletos", content = @Content),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content),
             @ApiResponse(responseCode = "502", description = "Erro interno ao processar requisição", content = @Content),
             @ApiResponse(responseCode = "503", description = "Serviço de previsão temporariamente indisponível", content = @Content)
-    })
+})
     @PostMapping
-    public ResponseEntity<RespostaPrevisaoDTO> predict(@RequestBody @Valid VooDTO vooDTO) {
-        return ResponseEntity.ok(previsaoVooService.previsao(vooDTO));
+    public ResponseEntity<ResponsePrevisaoDTO> predict(@RequestBody @Valid RequestPrevisaoDTO requestPrevisaoDTO) {
+        return ResponseEntity.ok(previsaoVooService.previsao(requestPrevisaoDTO));
     }
 }

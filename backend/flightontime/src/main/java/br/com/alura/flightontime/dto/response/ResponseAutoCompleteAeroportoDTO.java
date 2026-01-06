@@ -1,10 +1,10 @@
-package br.com.alura.flightontime.dto;
+package br.com.alura.flightontime.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 
 @Schema(description = "Resposta à solicitação de busca autocomplete de aeroporto.")
-public record AutoCompleteAeroportoDTO (
+public record ResponseAutoCompleteAeroportoDTO (
         @Schema(description = "Nome do aeroporto", example = "Guarulhos - Governador Andre Franco Montoro International Airport")
         String nome,
 

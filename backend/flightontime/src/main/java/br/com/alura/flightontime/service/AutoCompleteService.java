@@ -1,7 +1,7 @@
 package br.com.alura.flightontime.service;
 
-import br.com.alura.flightontime.dto.AutoCompleteAeroportoDTO;
-import br.com.alura.flightontime.dto.AutoCompleteCompanhiaAereaDTO;
+import br.com.alura.flightontime.dto.response.ResponseAutoCompleteAeroportoDTO;
+import br.com.alura.flightontime.dto.response.ResponseAutoCompleteCompanhiaAereaDTO;
 import br.com.alura.flightontime.model.Aeroporto;
 import br.com.alura.flightontime.model.CompanhiaAerea;
 import br.com.alura.flightontime.repository.AeroportoRepository;
@@ -23,24 +23,24 @@ public class AutoCompleteService {
     @Autowired
     private CompanhiaAereaRepository companhiaAereaRepository;
 
-    public List<AutoCompleteAeroportoDTO> autoCompleteAeroportos(String termo) {
+    public List<ResponseAutoCompleteAeroportoDTO> autoCompleteAeroportos(String termo) {
         Pageable limite = PageRequest.of(0, 5);
 
         List<Aeroporto> aeroportosEncontrados = aeroportoRepository.buscaAutoComplete(termo, limite);
-        List<AutoCompleteAeroportoDTO> resultados = new ArrayList<>();
+        List<ResponseAutoCompleteAeroportoDTO> resultados = new ArrayList<>();
         aeroportosEncontrados.forEach(aeroporto -> {
-            resultados.add(new AutoCompleteAeroportoDTO(aeroporto.getNomeAeroporto(), aeroporto.getCodigoIata(), aeroporto.getCodigoIcao(), aeroporto.getLatitude(), aeroporto.getLongitude()));
+            resultados.add(new ResponseAutoCompleteAeroportoDTO(aeroporto.getNomeAeroporto(), aeroporto.getCodigoIata(), aeroporto.getCodigoIcao(), aeroporto.getLatitude(), aeroporto.getLongitude()));
         });
         return resultados;
     }
 
-    public List<AutoCompleteCompanhiaAereaDTO> autoCompleteCompanhiaAerea(String termo) {
+    public List<ResponseAutoCompleteCompanhiaAereaDTO> autoCompleteCompanhiaAerea(String termo) {
         Pageable limite = PageRequest.of(0, 5);
         List<CompanhiaAerea> companhiaAereasEncontradas = companhiaAereaRepository.buscaAutoComplete(termo, limite);
-        List<AutoCompleteCompanhiaAereaDTO> resultados = new ArrayList<>();
+        List<ResponseAutoCompleteCompanhiaAereaDTO> resultados = new ArrayList<>();
 
         companhiaAereasEncontradas.forEach(c -> {
-            resultados.add(new AutoCompleteCompanhiaAereaDTO(c.getNome(), c.getCodigoIata(), c.getCodigoIcao()));
+            resultados.add(new ResponseAutoCompleteCompanhiaAereaDTO(c.getNome(), c.getCodigoIata(), c.getCodigoIcao()));
         });
         return resultados;
     }

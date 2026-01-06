@@ -1,4 +1,4 @@
-package br.com.alura.flightontime.dto;
+package br.com.alura.flightontime.dto.request;
 
 import br.com.alura.flightontime.model.PeriodoDia;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 
 @Schema(description = "Dados que serão enviados ao endpoint do modelo de previsão de atrasos.")
-public record RequisicaoPrevisaoVooDTO(
+public record RequestPrevisaoDataScienceDTO(
         @JsonProperty("aerodromo_origem")
         @Schema(description = "Código ICAO do aeroporto de origem", example = "SBGR")
         @Size(min = 4, max = 4)

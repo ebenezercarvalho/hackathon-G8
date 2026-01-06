@@ -10,9 +10,9 @@
 	</parent>
 	<groupId>br.com.alura</groupId>
 	<artifactId>flightontime</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>FlightOnTime</name>
-	<description>API do projeto FlightOnTime</description>
+	<description>API REST do projeto FlightOnTime</description>
 	<url/>
 	<licenses>
 		<license/>
