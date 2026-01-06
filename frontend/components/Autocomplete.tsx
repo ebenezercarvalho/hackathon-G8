@@ -6,6 +6,8 @@ interface Option {
   nome: string;
   codigoIata: string;
   codigoIcao: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface AutocompleteProps {
@@ -49,7 +51,12 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
       const response = await fetch(`${API_BASE_URL}/autocomplete/${endpoint}?termo=${encodeURIComponent(term)}`);
       if (response.ok) {
         const data = await response.json();
-        setOptions(data);
+        // Map 'none' to 'nome' if the backend has the typo seen in Swagger
+        const mappedData = data.map((item: any) => ({
+          ...item,
+          nome: item.none !== undefined ? item.none : item.nome
+        }));
+        setOptions(mappedData);
       }
     } catch (error) {
       console.error('Error fetching autocomplete options:', error);

@@ -57,7 +57,14 @@ export const translations = {
     rain: "Rain",
     snow: "Snow",
     thunderstorm: "Thunderstorm",
-    unknown: "Unknown"
+    unknown: "Unknown",
+    delayLevel: {
+      "Muito alta": "Very High",
+      "Alta": "High",
+      "Média": "Medium",
+      "Baixa": "Low",
+      "Muito baixa": "Very Low"
+    }
   },
   pt: {
     title: "FlightOps Control",
@@ -115,7 +122,14 @@ export const translations = {
     rain: "Chuva",
     snow: "Neve",
     thunderstorm: "Tempestade",
-    unknown: "Desconhecido"
+    unknown: "Desconhecido",
+    delayLevel: {
+      "Muito alta": "Muito alta",
+      "Alta": "Alta",
+      "Média": "Média",
+      "Baixa": "Baixa",
+      "Muito baixa": "Muito baixa"
+    }
   },
   es: {
     title: "FlightOps Control",
@@ -173,6 +187,13 @@ export const translations = {
     rain: "Lluvia",
     snow: "Nieve",
     thunderstorm: "Tormenta",
-    unknown: "Desconocido"
+    unknown: "Desconocido",
+    delayLevel: {
+      "Muito alta": "Muy alta",
+      "Alta": "Alta",
+      "Média": "Media",
+      "Baixa": "Baja",
+      "Muito baixa": "Muy baja"
+    }
   }
 };

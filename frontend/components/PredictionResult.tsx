@@ -42,14 +42,24 @@ const PredictionResultCard: React.FC<PredictionResultProps> = ({ result, lang })
           </>
         )}
 
-        <div className="w-full mt-10 border-t border-white/5 pt-10 flex flex-col items-center">
+        <div className="w-full mt-10 border-t border-white/5 pt-10 flex flex-col items-center gap-6">
           <div className="flex flex-col items-center gap-1">
             <span className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.2em]">
               {t.confidence}
             </span>
-            <span className={`text-5xl font-black font-mono tracking-tighter ${result.confidence > 70 ? 'text-green-500' : result.confidence > 40 ? 'text-yellow-500' : 'text-red-500'
+            <span className={`text-5xl font-black font-mono tracking-tighter ${result.confidence < 30 ? 'text-green-500' : result.confidence < 60 ? 'text-yellow-500' : 'text-red-500'
               }`}>
               {result.confidence}%
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.2em]">
+              {t.routing} (Risk Level)
+            </span>
+            <span className={`text-2xl font-bold tracking-tight ${result.confidence < 30 ? 'text-green-500' : result.confidence < 60 ? 'text-yellow-500' : 'text-red-500'
+              }`}>
+              {(t as any).delayLevel?.[result.probabilityLabel] || result.probabilityLabel}
             </span>
           </div>
         </div>

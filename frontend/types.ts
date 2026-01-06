@@ -13,6 +13,8 @@ export interface Airport {
   nome: string;
   codigoIata: string;
   codigoIcao: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Airline {
@@ -41,21 +43,21 @@ export interface WeatherCondition {
   clouds: number;
 }
 
-// Matches RespostaPrevisaoDTO from Swagger
-export interface RespostaPrevisaoDTO {
-  previsao: "Atrasado" | "Pontual" | "No horário";
-  probabilidadeAtraso?: number; // Old field (camelCase from backend)
-  probabilidade_atraso?: number; // Old field (snake_case)
-  confianca_percentual?: {
-    source: string;
-    parsedValue: number;
-  };
-  timestamp: string;
+// Matches ResponsePrevisaoDTO from new Swagger images
+export interface ResponsePrevisaoDTO {
+  probabilidadeAtraso: 'Muito alta' | 'Alta' | 'Média' | 'Baixa' | 'Muito baixa';
+  probabilidadeAtrasoPercentual: number;
+  timestamp?: string; // Kept if backend still provides it, though not visible in Swagger snippet
 }
+
+// Keeping the old one for compatibility during transition if needed, 
+// but will update service to use the new one.
+export type RespostaPrevisaoDTO = ResponsePrevisaoDTO;
 
 export interface PredictionResult {
   isDelayed: boolean;
   confidence: number;
+  probabilityLabel: string;
   weather: WeatherCondition | null;
   timestamp: string;
 }
