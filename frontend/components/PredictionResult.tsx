@@ -1,6 +1,6 @@
 import React from 'react';
 import { PredictionResult, Language } from '../types';
-import { AlertTriangle, CheckCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { translations } from '../translations';
 
 interface PredictionResultProps {
@@ -26,6 +26,21 @@ const PredictionResultCard: React.FC<PredictionResultProps> = ({ result, lang })
     }
   };
 
+  const getProbabilityIcon = (label: string) => {
+    switch (label) {
+      case 'Muito baixa':
+      case 'Baixa':
+        return <CheckCircle className="text-green-500" size={48} />;
+      case 'Média':
+        return <Clock className="text-yellow-500" size={48} />;
+      case 'Alta':
+      case 'Muito alta':
+        return <AlertTriangle className="text-red-500" size={48} />;
+      default:
+        return null;
+    }
+  };
+
   const getBackgroundColor = (label: string) => {
     switch (label) {
       case 'Muito baixa':
@@ -48,9 +63,12 @@ const PredictionResultCard: React.FC<PredictionResultProps> = ({ result, lang })
     `}>
       <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" aria-hidden="true" />
 
-      <div className="relative z-10 flex flex-col items-center justify-center">
+      <div className="relative z-10 flex flex-col items-center justify-center gap-6">
+        <div className="mb-2">
+          {getProbabilityIcon(result.probabilityLabel)}
+        </div>
         <div className="flex flex-col items-center gap-1">
-          <span className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.2em] mb-4">
+          <span className="text-base font-mono text-white uppercase tracking-[0.2em] mb-4">
             {t.delayProbTitle}
           </span>
           <h2 className={`text-4xl md:text-5xl font-black uppercase mb-2 tracking-tighter ${getProbabilityColor(result.probabilityLabel)}`}>

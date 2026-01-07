@@ -8,6 +8,7 @@ import PredictionResultCard from './components/PredictionResult';
 import WeatherPanel from './components/WeatherPanel';
 import ReportGenerator from './components/ReportGenerator';
 import Autocomplete from './components/Autocomplete';
+import logo from './assets/logo.png';
 
 function App() {
   // 2) Set Portuguese as the default host language
@@ -53,6 +54,8 @@ function App() {
     const flightDate = new Date(`${formData.date}T${formData.time}:00`);
     if (flightDate <= now) {
       showToast(t.errorDateFuture, 'error');
+      setResult(null);
+      setHasStarted(false);
       return;
     }
 
@@ -112,8 +115,8 @@ function App() {
       <header className="relative w-full border-b border-slate-700 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-lg shadow-lg">
-              <Plane className="text-white transform -rotate-45" size={24} aria-hidden="true" />
+            <div className="">
+              <img src={logo} alt="Chronos Logo" className="h-12 w-auto" />
             </div>
             <div>
               <h1 className="text-xl font-black text-white tracking-tight">{t.title}</h1>
@@ -280,7 +283,7 @@ function App() {
       </main>
 
       <footer className="w-full text-center py-12 text-slate-600 text-[10px] font-mono uppercase tracking-[0.2em] opacity-50">
-        &copy; 2024 Aerospace Predictive Systems &bull; Integrated API Module
+        &copy; 2024 Hackaton ONE G8 + Alura pelo time Chronos
       </footer>
     </div>
   );

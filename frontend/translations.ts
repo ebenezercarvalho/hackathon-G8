@@ -2,8 +2,8 @@ export type Language = 'en' | 'pt' | 'es';
 
 export const translations = {
   en: {
-    title: "FlightOps Control",
-    subtitle: "Real-time Delay Prediction System",
+    title: "Flight On Time",
+    subtitle: "Flight Delay Prediction System",
     routing: "Routing & Company",
     origin: "Origin Airport",
     destination: "Destination",
@@ -69,8 +69,8 @@ export const translations = {
     }
   },
   pt: {
-    title: "FlightOps Control",
-    subtitle: "Sistema de Predição de Atrasos",
+    title: "Flight On Time",
+    subtitle: "Sistema de Predição de Atrasos de Voos",
     routing: "Rota e Companhia",
     origin: "Aeroporto de Origem",
     destination: "Destino",
@@ -136,8 +136,8 @@ export const translations = {
     }
   },
   es: {
-    title: "FlightOps Control",
-    subtitle: "Sistema de Predicción de Retrasos",
+    title: "Flight On Time",
+    subtitle: "Sistema de Predicción de Retrasos de Vuelos",
     routing: "Ruta y Compañía",
     origin: "Aeropuerto de Origen",
     destination: "Destino",
