@@ -114,11 +114,11 @@ function App() {
     <div className="min-h-screen bg-gradient-to-b from-slate-800 via-[#020617] to-black bg-fixed text-slate-300 font-sans selection:bg-cyan-500/30">
 
       {/* Header */}
-      <header className="relative w-full border-b border-slate-700 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="relative w-full h-32 border-b border-slate-700 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto px-4 py-1 h-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="">
-              <img src={logo} alt="Chronos Logo" className="h-20 w-auto" />
+              <img src={logo} alt="Chronos Logo" className="h-[120px] w-auto" />
             </div>
             <div>
               <h1 className="text-xl font-black text-white tracking-tight">{t.title}</h1>
