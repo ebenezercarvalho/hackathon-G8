@@ -10,7 +10,7 @@ interface ToastProps {
     onClose: () => void;
 }
 
-const Toast: React.FC<ToastProps> = ({ message, type = 'info', duration = 5000, onClose }) => {
+const Toast: React.FC<ToastProps> = ({ message, type = 'info', duration = type === 'error' ? 30000 : 5000, onClose }) => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {

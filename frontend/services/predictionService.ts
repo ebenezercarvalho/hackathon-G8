@@ -44,18 +44,13 @@ export const predictFlightDelay = async (data: FlightFormData): Promise<Predicti
       throw new ApiError(errorData.message || 'Failed to fetch prediction', response.status);
     }
 
-    const result: ResponsePrevisaoDTO = await response.json();
+    const result: RespostaPrevisaoDTO = await response.json();
 
-    // 3. Fetch Weather for UI (Origin City)
-    let cityName = data.origin.nome.split('-')[0].trim();
-    cityName = cityName.replace(/Aeroporto|International|Intl|Airport/gi, '').trim();
+    // 3. Fetch Weather for UI (Origin coordinates)
+    const lat = data.origin.latitude || 0;
+    const lon = data.origin.longitude || 0;
 
-    if (!cityName || cityName.length < 3) {
-      console.warn(`Extracted city name '${cityName}' is too short or empty. Using default.`);
-      cityName = 'Sao Paulo';
-    }
-
-    const weather = await fetchFlightWeather(cityName, data.date);
+    const weather = await fetchFlightWeather(lat, lon, data.date);
 
     return {
       isDelayed: result.probabilidadeAtraso === 'Alta' || result.probabilidadeAtraso === 'Muito alta',

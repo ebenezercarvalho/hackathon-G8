@@ -76,14 +76,55 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
     }, 300);
   };
 
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [options]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isOpen) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+        setIsOpen(true);
+        e.preventDefault();
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        setActiveIndex(prev => (prev < options.length - 1 ? prev + 1 : prev));
+        e.preventDefault();
+        break;
+      case 'ArrowUp':
+        setActiveIndex(prev => (prev > 0 ? prev - 1 : 0));
+        e.preventDefault();
+        break;
+      case 'Enter':
+        if (activeIndex >= 0 && activeIndex < options.length) {
+          handleSelect(options[activeIndex]);
+        }
+        e.preventDefault();
+        break;
+      case 'Escape':
+        setIsOpen(false);
+        e.preventDefault();
+        break;
+      case 'Tab':
+        setIsOpen(false);
+        break;
+    }
+  };
+
   const handleSelect = (option: Option) => {
     onChange(option);
     setSearchTerm('');
     setIsOpen(false);
+    setActiveIndex(-1);
   };
 
   return (
-    <div className="space-y-2 relative" ref={wrapperRef}>
+    <div className="space-y-2 relative" ref={wrapperRef} onKeyDown={handleKeyDown}>
       <label className="text-xs text-slate-400 font-mono uppercase tracking-widest block">
         {label}
       </label>
@@ -131,6 +172,13 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
                 value={searchTerm}
                 onChange={handleSearchChange}
                 onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => {
+                  // Prevent input keys from bubbling up to wrapper for basic chars, 
+                  // but let Arrow keys and Enter bubble up.
+                  if (e.key === 'Escape' || e.key === 'Tab') {
+                    handleKeyDown(e as any);
+                  }
+                }}
               />
               {loading && <Loader2 className="absolute right-2 top-2.5 text-cyan-500 animate-spin" size={14} />}
             </div>
@@ -138,15 +186,16 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
 
           <div className="max-h-60 overflow-y-auto" role="listbox" aria-label={`${label} suggestions`}>
             {options.length > 0 ? (
-              options.map((option) => (
+              options.map((option, index) => (
                 <div
                   key={option.codigoIcao}
                   role="option"
-                  aria-selected={value?.codigoIcao === option.codigoIcao}
+                  aria-selected={value?.codigoIcao === option.codigoIcao || activeIndex === index}
                   onClick={() => handleSelect(option)}
+                  onMouseEnter={() => setActiveIndex(index)}
                   className={`
-                    px-4 py-3 cursor-pointer hover:bg-cyan-500/10 transition-colors border-l-2
-                    ${value?.codigoIcao === option.codigoIcao ? 'bg-cyan-500/20 border-cyan-500' : 'border-transparent'}
+                    px-4 py-3 cursor-pointer transition-colors border-l-2
+                    ${(value?.codigoIcao === option.codigoIcao || activeIndex === index) ? 'bg-cyan-500/20 border-cyan-500' : 'hover:bg-cyan-500/10 border-transparent'}
                   `}
                 >
                   <div className="flex flex-col">

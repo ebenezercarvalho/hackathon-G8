@@ -10,7 +10,7 @@ interface GeoLocation {
   name: string;
 }
 
-export const fetchFlightWeather = async (city: string, flightDate?: string): Promise<WeatherCondition | null> => {
+export const fetchFlightWeather = async (lat: number, lon: number, flightDate?: string): Promise<WeatherCondition | null> => {
   try {
     // 1. Validate Date (Max 16 days)
     if (flightDate) {
@@ -32,41 +32,14 @@ export const fetchFlightWeather = async (city: string, flightDate?: string): Pro
       }
     }
 
-    // 2. Get coordinates for the city
-    const location = await fetchCoordinates(city);
-    if (!location) {
-      throw new Error(`Location not found for: ${city}`);
-    }
-
-    // 3. Get weather for coordinates
-    const weatherData = await fetchWeather(location.latitude, location.longitude, flightDate);
+    // 2. Get weather for coordinates
+    const weatherData = await fetchWeather(lat, lon, flightDate);
 
     return weatherData;
 
   } catch (error) {
     console.error('Weather service error:', error);
     return getFallbackWeather();
-  }
-};
-
-const fetchCoordinates = async (city: string): Promise<GeoLocation | null> => {
-  try {
-    const response = await fetch(`${GEOCODING_URL}?name=${encodeURIComponent(city)}&count=1&language=pt&format=json`);
-    const data = await response.json();
-
-    if (!data.results || data.results.length === 0) {
-      console.warn(`Geocoding found no results for city: '${city}'`);
-      return null;
-    }
-
-    return {
-      latitude: data.results[0].latitude,
-      longitude: data.results[0].longitude,
-      name: data.results[0].name
-    };
-  } catch (e) {
-    console.error("Geocoding failed", e);
-    return null;
   }
 };
 

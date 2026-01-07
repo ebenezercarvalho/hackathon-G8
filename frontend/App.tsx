@@ -48,19 +48,43 @@ function App() {
       return;
     }
 
+    // Date validation
+    const now = new Date();
+    const flightDate = new Date(`${formData.date}T${formData.time}:00`);
+    if (flightDate <= now) {
+      showToast(t.errorDateFuture, 'error');
+      return;
+    }
+
     setHasStarted(true);
     setLoading(true);
     setResult(null);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      setLoading(false);
+      // Requirement 8: If it takes more than 3s, stop loading and don't show info
+      // Optional: notify user it took too long
+    }, 3000);
+
     try {
       const prediction = await predictFlightDelay(formData);
-      setResult(prediction);
+      clearTimeout(timeoutId);
 
-      if (prediction.weather?.condition === 'Unknown') {
-        showToast(t.errorWeather, 'info');
+      if (!controller.signal.aborted) {
+        setResult(prediction);
+
+        if (prediction.weather?.condition === 'Unknown') {
+          showToast(t.errorWeather, 'info');
+        }
       }
 
     } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.warn('Request timed out after 3 seconds');
+        return;
+      }
       console.error(error);
       if (error instanceof ApiError) {
         switch (error.status) {
@@ -71,11 +95,12 @@ function App() {
           default: showToast(t.error500, 'error');
         }
       } else {
-        // Network error or untyped error -> assume System Unavailable
         showToast(t.errorML, 'error');
       }
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   };
 
