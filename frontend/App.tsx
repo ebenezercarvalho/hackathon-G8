@@ -56,6 +56,7 @@ function App() {
       showToast(t.errorDateFuture, 'error');
       setResult(null);
       setHasStarted(false);
+      setLoading(false);
       return;
     }
 
@@ -67,8 +68,8 @@ function App() {
     const timeoutId = setTimeout(() => {
       controller.abort();
       setLoading(false);
-      // Requirement 8: If it takes more than 3s, stop loading and don't show info
-      // Optional: notify user it took too long
+      setHasStarted(false);
+      setResult(null);
     }, 3000);
 
     try {
@@ -84,8 +85,9 @@ function App() {
       }
 
     } catch (error: any) {
+      setHasStarted(false);
+      setResult(null);
       if (error.name === 'AbortError') {
-        console.warn('Request timed out after 3 seconds');
         return;
       }
       console.error(error);
@@ -116,7 +118,7 @@ function App() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="">
-              <img src={logo} alt="Chronos Logo" className="h-12 w-auto" />
+              <img src={logo} alt="Chronos Logo" className="h-20 w-auto" />
             </div>
             <div>
               <h1 className="text-xl font-black text-white tracking-tight">{t.title}</h1>
@@ -125,9 +127,6 @@ function App() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 text-[10px] font-mono text-slate-400 mr-4">
-              <Activity size={12} className="text-green-500" /> {t.systemOnline}
-            </div>
             <div className="flex items-center gap-2 bg-slate-950/50 border border-slate-700 rounded-full px-3 py-1.5">
               <Languages size={14} className="text-cyan-500" aria-hidden="true" />
               <select
@@ -283,7 +282,7 @@ function App() {
       </main>
 
       <footer className="w-full text-center py-12 text-slate-600 text-[10px] font-mono uppercase tracking-[0.2em] opacity-50">
-        &copy; 2024 Hackaton ONE G8 + Alura pelo time Chronos
+        &copy; 2025 Hackaton ONE by Chronos Team
       </footer>
     </div>
   );

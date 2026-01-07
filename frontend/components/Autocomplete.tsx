@@ -41,7 +41,8 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
   }, []);
 
   const fetchOptions = async (term: string) => {
-    if (term.length < 3) {
+    const minChars = endpoint === 'companhia-aerea' ? 2 : 3;
+    if (term.length < minChars) {
       setOptions([]);
       return;
     }
@@ -209,7 +210,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
               ))
             ) : (
               <div className="p-4 text-center text-xs text-slate-500 italic">
-                {searchTerm.length < 3 ? t.typeMinChars : t.noResults}
+                {searchTerm.length < (endpoint === 'companhia-aerea' ? 2 : 3) ? t.typeMinChars : t.noResults}
               </div>
             )}
           </div>
