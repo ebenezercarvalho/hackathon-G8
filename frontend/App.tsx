@@ -16,6 +16,10 @@ function App() {
   const t = translations[lang];
   const { showToast } = useToast();
 
+  React.useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   const [loading, setLoading] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [resetKey, setResetKey] = useState(0);
@@ -116,7 +120,7 @@ function App() {
       {/* Header */}
       <header className="relative w-full h-[106px] border-b border-slate-700 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-0.5 h-full flex items-center justify-between">
-          <div className="flex items-center gap-[7px]">
+          <div className="flex items-center gap-[5px]">
             <div className="">
               <img src={logo} alt="Chronos Logo" className="h-[102px] w-auto" />
             </div>
@@ -127,17 +131,17 @@ function App() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-slate-950/50 border border-slate-700 rounded-full px-3 py-1.5">
-              <Languages size={14} className="text-cyan-500" aria-hidden="true" />
+            <div className="flex items-center gap-2 bg-slate-950/50 border border-slate-700 rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-cyan-500 transition-all min-w-[90px] justify-center">
+              <Languages size={14} className="text-cyan-500 shrink-0" aria-hidden="true" />
               <select
                 value={lang}
                 onChange={(e) => setLang(e.target.value as Language)}
-                className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer"
+                className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer text-center appearance-none w-full"
                 aria-label="Change language"
               >
-                <option value="pt" className="bg-slate-900">PT</option>
-                <option value="en" className="bg-slate-900">EN</option>
-                <option value="es" className="bg-slate-900">ES</option>
+                <option value="pt" className="bg-slate-900 text-center">PT</option>
+                <option value="en" className="bg-slate-900 text-center">EN</option>
+                <option value="es" className="bg-slate-900 text-center">ES</option>
               </select>
             </div>
           </div>
@@ -204,6 +208,7 @@ function App() {
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
+                    lang={lang === 'pt' ? 'pt-BR' : lang === 'en' ? 'en-US' : 'es-ES'}
                     className="w-full bg-slate-950/80 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 transition-all outline-none"
                     aria-required="true"
                   />
@@ -282,7 +287,7 @@ function App() {
       </main>
 
       <footer className="w-full text-center py-12 text-slate-600 text-[10px] font-mono uppercase tracking-[0.2em] opacity-50">
-        &copy; 2025 Hackaton ONE by Chronos Team
+        {t.footer}
       </footer>
     </div>
   );

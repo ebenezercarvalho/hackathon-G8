@@ -210,7 +210,9 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
               ))
             ) : (
               <div className="p-4 text-center text-xs text-slate-500 italic">
-                {searchTerm.length < (endpoint === 'companhia-aerea' ? 2 : 3) ? t.typeMinChars : t.noResults}
+                {searchTerm.length < (endpoint === 'companhia-aerea' ? 2 : 3)
+                  ? (endpoint === 'companhia-aerea' ? t.typeMinChars2 : t.typeMinChars3)
+                  : t.noResults}
               </div>
             )}
           </div>

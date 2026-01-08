@@ -68,11 +68,11 @@ const PredictionResultCard: React.FC<PredictionResultProps> = ({ result, lang })
           {getProbabilityIcon(result.probabilityLabel)}
         </div>
         <div className="flex flex-col items-center gap-1">
-          <span className="text-base font-mono text-white uppercase tracking-[0.2em] mb-4">
-            {t.delayProbTitle}
+          <span className="text-base font-mono text-white uppercase tracking-[0.2em] mb-2">
+            {t.delayProbTitle} {result.confidence}%
           </span>
-          <h2 className={`text-4xl md:text-5xl font-black uppercase mb-2 tracking-tighter ${getProbabilityColor(result.probabilityLabel)}`}>
-            {(t as any).delayLevel?.[result.probabilityLabel] || result.probabilityLabel} ({result.confidence}%)
+          <h2 className={`text-2xl md:text-3xl font-black uppercase tracking-tight ${getProbabilityColor(result.probabilityLabel)}`}>
+            {(t as any).delayLevel?.[result.probabilityLabel] || result.probabilityLabel}
           </h2>
         </div>
       </div>
