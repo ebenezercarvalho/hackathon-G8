@@ -1,8 +1,8 @@
-# ✈️ Flight Delay Prediction API
+# ✈️ API de Previsão de Atrasos de Voos
 
-Este projeto consiste em um microserviço de **Machine Learning** desenvolvido com **FastAPI** para prever a probabilidade de atrasos em voos comerciais. Ele utiliza um modelo *Random Forest* treinado com dados históricos para fornecer estimativas em tempo real.
+Nosso projeto consiste em um microserviço de **Machine Learning** desenvolvido com **FastAPI** para prever a probabilidade de atrasos em voos comerciais. Ele utiliza um modelo *Random Forest* treinado com dados históricos da ANAC para fornecer estimativas de atrasos.
 
-O serviço foi projetado para operar como um componente *sidecar* ou microserviço independente, ideal para ser consumido por backends robustos (como aplicações Spring Boot).
+O projeto foi criado para operar como um microserviço independente, ideal para ser consumido por backends (como aplicações Spring Boot).
 
 ---
 
@@ -26,56 +26,12 @@ O serviço foi projetado para operar como um componente *sidecar* ou microservi�
 
 ---
 
-## 🚀 Como Executar Localmente
-
-Siga os passos abaixo para colocar a API no ar em sua máquina.
-
-### 1. Configuração do Ambiente
-
-É recomendável usar um ambiente virtual para isolar as dependências do projeto.
-
-**Windows:**
-```powershell
-python -m venv venv
-.\venv\Scripts\activate
-```
-
-**Linux/Mac:**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 2. Instalação de Dependências
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Execução do Servidor
-
-Você pode iniciar o servidor de duas formas:
-
-**Via Python (Script facilitador):**
-```bash
-python main.py
-```
-
-**Via Uvicorn (Recomendado para desenvolvimento):**
-```bash
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-A API estará acessível em: `http://localhost:8000`
-
----
-
 ## 📡 Documentação dos Endpoints
 
 Abaixo estão detalhados os endpoints disponíveis na API.
 
 ### 📚 Documentação Interativa (Swagger UI)
-Acesse `http://localhost:8000/docs` para testar os endpoints diretamente pelo navegador.
+Acesse `https://flapi.synapsisweb.com/docs` para testar os endpoints.
 
 ---
 
@@ -126,14 +82,14 @@ Recebe os detalhes de um voo e retorna a análise de risco de atraso.
 ### 2. Health Check
 **Rota:** `GET /health`
 
-Verifica se a API está online e se o modelo de Machine Learning foi carregado corretamente na memória. Útil para *liveness probes* em orquestradores como Kubernetes.
+Verifica se a API está online e se o modelo de Machine Learning foi carregado corretamente na memória. 
 
 **Resposta Exemplo:**
 ```json
 {
   "status": "healthy",
   "modelo_carregado": true,
-  "data_treinamento": "2024-12-10",
+  "data_treinamento": "2025-12-25",
   "metricas": { "roc_auc": 0.68 }
 }
 ```
@@ -167,7 +123,7 @@ public class VooRequest {
 
 **Chamada via RestTemplate:**
 ```java
-String url = "http://localhost:8000/predict";
+String url = "https://flapi.synapsisweb.com/predict";
 PrevisaoResponse resposta = restTemplate.postForObject(url, vooRequest, PrevisaoResponse.class);
 ```
 
@@ -188,5 +144,3 @@ Para facilitar o deploy, o projeto inclui um `Dockerfile` otimizado.
    ```
 
 ---
-
-**Desenvolvido pelo Time Antigravity 🚀**
