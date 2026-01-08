@@ -208,7 +208,7 @@ function App() {
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
-                    lang={lang === 'pt' ? 'pt-BR' : lang === 'en' ? 'en-US' : 'es-ES'}
+                    lang={lang}
                     className="w-full bg-slate-950/80 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 transition-all outline-none"
                     aria-required="true"
                   />
