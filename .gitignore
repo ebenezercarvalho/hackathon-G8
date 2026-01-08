@@ -1,15 +1,54 @@
-<<<<<<< HEAD
 /gitignore
 /frontend
 /.venv
 /.env.example
 
-=======
+# Dependências
+node_modules/
+.pnp
+.pnp.js
+
+# Testes
+coverage/
+.nyc_output/
+
+# Produção / Build
+build/
+dist/
+
+# Arquivos gerados por ferramentas de desenvolvimento
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editores e IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Arquivos temporários do OS
+Thumbs.db
+
+# Opcional: Se você usa TypeScript
+*.tsbuildinfo
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+uploads/*
+!uploads/.gitkeep
+.env
 
 ### STS ###
 .apt_generated
@@ -38,4 +77,3 @@ build/
 
 ### VS Code ###
 .vscode/
->>>>>>> 85cc6e1 (Commit inicial)
