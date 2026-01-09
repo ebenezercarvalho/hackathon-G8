@@ -1,0 +1,5 @@
+{
+  "name": "FlightOps Control",
+  "description": "A professional real-time flight delay prediction system with weather integration and automated reporting.",
+  "requestFramePermissions": []
+}
