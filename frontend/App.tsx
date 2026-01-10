@@ -189,7 +189,7 @@ function App() {
                 endpoint="companhia-aerea"
                 value={formData.airline}
                 onChange={(val) => handleAutocompleteChange('airline', val as Airline)}
-                lang={lang}
+                  lang={lang}
               />
             </div>
 
@@ -208,7 +208,6 @@ function App() {
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
-                    lang={lang}
                     className="w-full bg-slate-950/80 border border-slate-700 text-white rounded p-3 text-sm focus:ring-1 focus:ring-cyan-500 transition-all outline-none"
                     aria-required="true"
                   />
@@ -267,8 +266,6 @@ function App() {
 
           {result && (
             <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-700">
-              <PredictionResultCard result={result} lang={lang} />
-              <WeatherPanel weather={result.weather} lang={lang} />
               <ReportGenerator
                 flightData={{
                   ...formData,
@@ -277,7 +274,6 @@ function App() {
                   airline: formData.airline?.nome || ''
                 } as any}
                 prediction={result}
-                lang={lang}
               />
 
 
