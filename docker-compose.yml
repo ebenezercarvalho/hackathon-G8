@@ -1,0 +1,49 @@
+services:
+  # Banco de Dados PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: flightontime-db
+    environment:
+      POSTGRES_DB: flightontime
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Backend Spring Boot
+  backend:
+    build: ./backend/flightontime
+    container_name: flightontime-backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Sobrescreve as configurações do application.properties para apontar para o container 'db'
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/flightontime
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      # URL da API de ML para o Backend se comunicar
+      API_PREVISAO: http://ml-api:8000/predict
+      JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8"
+    depends_on:
+      - db
+
+  # API de Machine Learning (Python)
+  ml-api:
+    build: ./ml-api
+    container_name: flightontime-ml-api
+    ports:
+      - "8000:8000"
+
+  # Frontend React
+  frontend:
+    build: ./frontend
+    container_name: flightontime-frontend
+    ports:
+      - "3000:80" # Acessível em localhost:3000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
