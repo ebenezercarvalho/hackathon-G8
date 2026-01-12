@@ -58,6 +58,6 @@ export interface PredictionResult {
   isDelayed: boolean;
   confidence: number;
   probabilityLabel: string;
-  weather: WeatherCondition | null;
+  weather?: WeatherCondition | null;
   timestamp: string;
 }

@@ -54,6 +54,7 @@ export const translations = {
     error503: "Our prediction service is temporarily unavailable. We'll be back soon!",
     errorWeather: "Weather service temporarily unavailable. We're continuing with other flight analyses.",
     errorML: "Prediction system unavailable at the moment. Please refresh and try again in a few minutes.",
+    weatherUnavailable: 'Weather data unavailable',
     // Weather Conditions
     clear: "Clear",
     clouds: "Clouds",
@@ -123,6 +124,7 @@ export const translations = {
     error503: "Nosso serviço de previsão está temporariamente indisponível. Voltamos em breve!",
     errorWeather: "Serviço de clima temporariamente indisponível. Continuamos com as outras análises de voo.",
     errorML: "Sistema de previsão indisponível no momento. Atualize a página e tente em alguns minutos.",
+    weatherUnavailable: 'Dados meteorológicos indisponíveis',
     // Weather Conditions
     clear: "Limpo",
     clouds: "Nublado",
@@ -192,6 +194,7 @@ export const translations = {
     error503: "Nuestro servicio de predicción no está disponible temporalmente. ¡Volveremos pronto!",
     errorWeather: "Servicio del clima temporalmente no disponible. Continuamos con los otros análisis de vuelo.",
     errorML: "Sistema de predicción no disponible en este momento. Actualice la página e intente en unos minutos.",
+    weatherUnavailable: 'Datos meteorológicos no disponibles',
     // Weather Conditions
     clear: "Despejado",
     clouds: "Nublado",

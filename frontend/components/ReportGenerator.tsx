@@ -17,25 +17,30 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
   const generatePDF = () => {
     setGenerating(true);
-    
+
     setTimeout(() => {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
 
       // Header
-      doc.setFillColor(15, 23, 42); 
+      doc.setFillColor(15, 23, 42);
       doc.rect(0, 0, pageWidth, 40, 'F');
-      
-      doc.setTextColor(34, 211, 238); 
+
+      doc.setTextColor(34, 211, 238);
       doc.setFontSize(22);
       doc.setFont('helvetica', 'bold');
       doc.text(t.title, 14, 20);
-      
+
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
       doc.text(t.reportTitle, 14, 30);
-      doc.text(`DATE: ${new Date().toLocaleString()}`, pageWidth - 14, 30, { align: 'right' });
+      doc.text(
+        `DATE: ${new Date().toLocaleString()}`,
+        pageWidth - 14,
+        30,
+        { align: 'right' }
+      );
 
       // Flight Information
       doc.setTextColor(0, 0, 0);
@@ -47,10 +52,16 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
         startY: 55,
         head: [[t.origin, t.destination, t.date, t.exactTime, t.airline]],
         body: [
-          [flightData.origin, flightData.destination, flightData.date, flightData.time, flightData.airline]
+          [
+            flightData.origin.nome,
+            flightData.destination.nome,
+            flightData.date,
+            flightData.time,
+            flightData.airline.nome
+          ]
         ],
         theme: 'grid',
-        headStyles: { fillColor: [6, 182, 212] },
+        headStyles: { fillColor: [6, 182, 212] }
       });
 
       // Prediction Result
@@ -60,15 +71,27 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       doc.setFontSize(12);
       if (prediction.isDelayed) {
         doc.setTextColor(220, 38, 38);
-        doc.text(`STATUS: ${t.highDelayProb.toUpperCase()}`, 14, finalY + 10);
+        doc.text(
+          `STATUS: ${t.highDelayProb.toUpperCase()}`,
+          14,
+          finalY + 10
+        );
       } else {
         doc.setTextColor(22, 163, 74);
-        doc.text(`STATUS: ${t.onTimeLikely.toUpperCase()}`, 14, finalY + 10);
+        doc.text(
+          `STATUS: ${t.onTimeLikely.toUpperCase()}`,
+          14,
+          finalY + 10
+        );
       }
-      
-      doc.setTextColor(0,0,0);
+
+      doc.setTextColor(0, 0, 0);
       doc.setFontSize(12);
-      doc.text(`${t.confidence}: ${prediction.confidence}%`, 14, finalY + 20);
+      doc.text(
+        `${t.confidence}: ${prediction.confidence}%`,
+        14,
+        finalY + 20
+      );
 
       // Weather Data
       const weatherY = finalY + 35;
@@ -76,23 +99,39 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       doc.setFont('helvetica', 'bold');
       doc.text(`3. ${t.metForecastHeader}`, 14, weatherY);
 
-      autoTable(doc, {
-        startY: weatherY + 5,
-        head: [[t.skyCondition, t.tempRange, t.windSpeed, t.humidity, t.rainProb]],
-        body: [
-          [
-            prediction.weather.condition,
-            `${Math.round(prediction.weather.minTemp)}° / ${Math.round(prediction.weather.maxTemp)}°C`,
-            `${prediction.weather.windSpeed.toFixed(1)} km/h`,
-            `${prediction.weather.humidity}%`,
-            `${prediction.weather.rainProbability}%`
-          ]
-        ],
-        theme: 'striped',
-        headStyles: { fillColor: [30, 41, 59] },
-      });
+      if (prediction.weather) {
+        autoTable(doc, {
+          startY: weatherY + 5,
+          head: [[t.skyCondition, t.tempRange, t.windSpeed, t.humidity, t.rainProb]],
+          body: [
+            [
+              prediction.weather.condition,
+              `${Math.round(prediction.weather.minTemp)}° / ${Math.round(
+                prediction.weather.maxTemp
+              )}°C`,
+              `${prediction.weather.windSpeed.toFixed(1)} km/h`,
+              `${prediction.weather.humidity}%`,
+              `${prediction.weather.rainProbability}%`
+            ]
+          ],
+          theme: 'striped',
+          headStyles: { fillColor: [30, 41, 59] }
+        });
+      } else {
+        // 🔒 Previsão indisponível (mantém layout do relatório)
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(120, 120, 120);
+        doc.text(
+          t.weatherUnavailable ?? 'Dados meteorológicos indisponíveis',
+          14,
+          weatherY + 10
+        );
+      }
 
-      doc.save(`flight_report_${flightData.origin}_${flightData.destination}.pdf`);
+      doc.save(
+        `flight_report_${flightData.origin.nome}_${flightData.destination.nome}.pdf`
+      );
       setGenerating(false);
     }, 1000);
   };
@@ -104,7 +143,11 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
         disabled={generating}
         className="group relative inline-flex items-center gap-3 px-10 py-4 bg-slate-800 text-cyan-400 border border-cyan-900 rounded-xl hover:bg-cyan-950 hover:border-cyan-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {generating ? <Loader2 className="animate-spin" size={20} /> : <FileText size={20} />}
+        {generating ? (
+          <Loader2 className="animate-spin" size={20} />
+        ) : (
+          <FileText size={20} />
+        )}
         <span className="font-mono font-bold tracking-wider uppercase text-xs">
           {generating ? t.generatingReport : t.downloadReport}
         </span>

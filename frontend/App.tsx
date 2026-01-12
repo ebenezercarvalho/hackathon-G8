@@ -266,14 +266,12 @@ function App() {
 
           {result && (
             <div className="space-y-10 animate-in fade-in slide-in-from-bottom-10 duration-700">
+              <PredictionResultCard result={result} lang={lang} />
+              <WeatherPanel weather={result.weather} lang={lang} />
               <ReportGenerator
-                flightData={{
-                  ...formData,
-                  origin: formData.origin?.nome || '',
-                  destination: formData.destination?.nome || '',
-                  airline: formData.airline?.nome || ''
-                } as any}
+                flightData={formData}
                 prediction={result}
+                lang={lang}
               />
 
 
