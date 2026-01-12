@@ -7,6 +7,7 @@ services:
       POSTGRES_DB: flightontime
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
+      TZ: ${TZ}
     ports:
       - "5432:5432"
     volumes:
@@ -25,7 +26,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: password
       # URL da API de ML para o Backend se comunicar
       API_PREVISAO: http://ml-api:8000/predict
-      JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8"
+      # Configurações de timezone e encoding
+      JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8 -Duser.timezone=${TZ}"
+      TZ: ${TZ}
     depends_on:
       - db
 
@@ -35,6 +38,8 @@ services:
     container_name: flightontime-ml-api
     ports:
       - "8000:8000"
+    environment:
+      TZ: ${TZ}
 
   # Frontend React
   frontend:
@@ -42,8 +47,26 @@ services:
     container_name: flightontime-frontend
     ports:
       - "3000:80" # Acessível em localhost:3000
+    environment:
+      TZ: ${TZ}
     depends_on:
       - backend
+
+  nginx:
+    image: nginx:alpine
+    container_name: flightontime-nginx
+    ports:
+      - "80:80"
+    volumes:
+      # Arquivo de configuração
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Pasta com o HTML e a logo
+      - ./nginx/error-pages:/var/www/error-pages
+    depends_on:
+      - frontend
+      - backend
+    environment:
+      TZ: ${TZ}
 
 volumes:
   postgres_data:
