@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: password
       TZ: ${TZ}
     ports:
-      - "5432:5432"
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -18,7 +18,7 @@ services:
     build: ./backend/flightontime
     container_name: flightontime-backend
     ports:
-      - "8080:8080"
+      - "8080"
     environment:
       # Sobrescreve as configurações do application.properties para apontar para o container 'db'
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/flightontime
@@ -37,18 +37,24 @@ services:
     build: ./ml-api
     container_name: flightontime-ml-api
     ports:
-      - "8000:8000"
+      - "8000"
     environment:
       TZ: ${TZ}
 
   # Frontend React
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        # Usa a variável de ambiente do host ou fallback para /api
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
     container_name: flightontime-frontend
     ports:
-      - "3000:80" # Acessível em localhost:3000
+      - "3000"
     environment:
       TZ: ${TZ}
+      # Opcional: define também em tempo de execução (útil para dev/preview)
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
     depends_on:
       - backend
 

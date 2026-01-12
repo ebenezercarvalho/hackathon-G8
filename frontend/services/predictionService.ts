@@ -1,7 +1,7 @@
 import { FlightFormData, PredictionResult, RespostaPrevisaoDTO } from '../types';
 import { fetchFlightWeather } from './weatherService';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export class ApiError extends Error {
   status: number;
@@ -30,7 +30,8 @@ export const predictFlightDelay = async (data: FlightFormData): Promise<Predicti
 
   try {
     // 2. Call the Real Backend
-    const response = await fetch(`${API_BASE_URL}/predict`, {
+    const url = API_BASE_URL ? `${API_BASE_URL}/predict` : '/predict';
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

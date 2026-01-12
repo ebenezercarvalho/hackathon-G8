@@ -19,7 +19,7 @@ interface AutocompleteProps {
   lang: Language;
 }
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, value, onChange, label, lang }) => {
   const t = translations[lang];

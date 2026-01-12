@@ -3,6 +3,11 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Permite injetar `VITE_API_BASE_URL` no momento do build via --build-arg
+ARG VITE_API_BASE_URL=/api
+# Exporta como variável de ambiente para o processo do npm/vite durante o build
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
 # Copia as dependências primeiro para aproveitar o cache do Docker
 COPY package*.json ./
 RUN npm ci
