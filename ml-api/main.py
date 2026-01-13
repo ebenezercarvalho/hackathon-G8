@@ -47,10 +47,17 @@ app = FastAPI(
     servers=[{"url": "/ml-api", "description": "Default Server"}]
 )
 
+origins = [
+    "http://localhost:3000",      # Frontend em desenvolvimento
+    "http://flightontime-nginx",  # Comunicação interna via Docker
+    "http://localhost",           # Acesso direto
+]
+
 # CORS 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    # allow_origins=["*"],
+    allow_origins=[origins], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

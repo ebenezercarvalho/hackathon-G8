@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/predict")
 @Tag(name = "Previsão", description = "Endpoint relacionado à previsão de pontualidade de voos")
-@CrossOrigin(origins = "*")
 public class PredictController {
 
     @Autowired

@@ -29,7 +29,6 @@ public class AutoCompleteController {
             @ApiResponse(responseCode = "400", description = "Parâmetros inválidos", content = @Content),
             @ApiResponse(responseCode = "500", description = "Erro interno ao processar a previsão", content = @Content)
     })
-    @CrossOrigin(origins = "*")
     @GetMapping("/aeroportos")
     public ResponseEntity<List<ResponseAutoCompleteAeroportoDTO>> autoCompleteAeroporto(
             @Parameter(
@@ -50,7 +49,6 @@ public class AutoCompleteController {
             @ApiResponse(responseCode = "400", description = "Parâmetros inválidos ou incompletos", content = @Content),
             @ApiResponse(responseCode = "500", description = "Erro interno ao processar a previsão", content = @Content)
     })
-    @CrossOrigin(origins = "*")
     @GetMapping("/companhia-aerea")
     public ResponseEntity<List<ResponseAutoCompleteCompanhiaAereaDTO>> autoCompleteCompanhiaAerea(
             @Parameter(

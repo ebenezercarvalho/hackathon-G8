@@ -16,11 +16,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class TratadorDeErros extends ResponseEntityExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(TratadorDeErros.class);
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -54,21 +59,19 @@ public class TratadorDeErros extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ServicoExternoIndisponivelException.class)
-    public ResponseEntity<String> handleServicoExterno(
-            ServicoExternoIndisponivelException ex) {
-
+    public ResponseEntity<String> handleServicoExterno(ServicoExternoIndisponivelException ex) {       
+        logger.error("Serviço externo indisponível: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE) // 503
-                .body(ex.getMessage());
+                .body("O serviço de previsão está temporariamente indisponível. Por favor, tente novamente em alguns instantes.");
     }
 
     @ExceptionHandler(RespostaInvalidaServicoExternoException.class)
-    public ResponseEntity<String> handleRespostaInvalida(
-            RespostaInvalidaServicoExternoException ex) {
-
+    public ResponseEntity<String> handleRespostaInvalida(RespostaInvalidaServicoExternoException ex) {
+        logger.error("Resposta inválida do serviço externo: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_GATEWAY) // 502
-                .body(ex.getMessage());
+                .body("Erro ao processar a resposta do serviço de previsão. Por favor, tente novamente mais tarde.");
     }
 
 
