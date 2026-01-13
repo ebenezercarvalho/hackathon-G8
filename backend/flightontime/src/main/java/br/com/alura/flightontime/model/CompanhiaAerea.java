@@ -1,5 +1,9 @@
 package br.com.alura.flightontime.model;
 
+import java.sql.Types;
+
+import org.hibernate.annotations.JdbcTypeCode;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -35,6 +39,7 @@ public class CompanhiaAerea {
     @Column(name = "country")
     private String pais;
 
-    @Column(name = "active")
+    @Column(name = "active", columnDefinition = "CHAR(1)", length = 1)
+    @JdbcTypeCode(Types.CHAR)
     private String ativo;
 }
