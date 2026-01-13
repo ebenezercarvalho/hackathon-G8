@@ -3,6 +3,7 @@ services:
   db:
     image: postgres:15-alpine
     container_name: flightontime-db
+    restart: always
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -15,6 +16,7 @@ services:
   backend:
     build: ./backend/flightontime
     container_name: flightontime-backend
+    restart: always
     environment:
       # Sobrescreve as configurações do application.properties para apontar para o container 'db'
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
@@ -33,6 +35,7 @@ services:
   ml-api:
     build: ./ml-api
     container_name: flightontime-ml-api
+    restart: always
     environment:
       TZ: ${TZ}
 
@@ -44,6 +47,7 @@ services:
         # Usa a variável de ambiente do host ou fallback para /api
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
     container_name: flightontime-frontend
+    restart: always
     expose:
       - "3000"
     environment:
@@ -56,6 +60,7 @@ services:
   nginx:
     image: nginx:alpine
     container_name: flightontime-nginx
+    restart: always
     ports:
       - "80:80"
     volumes:
