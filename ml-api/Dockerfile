@@ -20,4 +20,4 @@ COPY modelo_flight_delay.pkl /app/modelo_flight_delay.pkl
 EXPOSE 8000
 
 # Comando de inicialização
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/ml-api"]

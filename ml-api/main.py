@@ -42,7 +42,9 @@ app = FastAPI(
     title="Flight Delay Prediction API",
     description="API de Predição de Atrasos de Voos usando Machine Learning",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    root_path="/ml-api",
+    servers=[{"url": "/ml-api", "description": "Default Server"}]
 )
 
 # CORS 

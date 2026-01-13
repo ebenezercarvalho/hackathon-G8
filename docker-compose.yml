@@ -4,12 +4,10 @@ services:
     image: postgres:15-alpine
     container_name: flightontime-db
     environment:
-      POSTGRES_DB: flightontime
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       TZ: ${TZ}
-    ports:
-      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -17,18 +15,17 @@ services:
   backend:
     build: ./backend/flightontime
     container_name: flightontime-backend
-    ports:
-      - "8080"
     environment:
       # Sobrescreve as configurações do application.properties para apontar para o container 'db'
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/flightontime
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       # URL da API de ML para o Backend se comunicar
       API_PREVISAO: http://ml-api:8000/predict
       # Configurações de timezone e encoding
       JAVA_TOOL_OPTIONS: "-Dfile.encoding=UTF-8 -Duser.timezone=${TZ}"
       TZ: ${TZ}
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
     depends_on:
       - db
 
@@ -36,8 +33,6 @@ services:
   ml-api:
     build: ./ml-api
     container_name: flightontime-ml-api
-    ports:
-      - "8000"
     environment:
       TZ: ${TZ}
 
@@ -49,7 +44,7 @@ services:
         # Usa a variável de ambiente do host ou fallback para /api
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
     container_name: flightontime-frontend
-    ports:
+    expose:
       - "3000"
     environment:
       TZ: ${TZ}
