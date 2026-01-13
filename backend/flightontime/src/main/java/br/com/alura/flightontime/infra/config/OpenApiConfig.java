@@ -25,10 +25,6 @@ public class OpenApiConfig {
                         **Ebenézer Carvalho | Data Scientist | Líder**
                         * LinkedIn: [https://www.linkedin.com/in/ebenezercarvalho/](https://www.linkedin.com/in/ebenezercarvalho/)
                         * GitHub: [https://github.com/ebenezercarvalho](https://github.com/ebenezercarvalho)
-
-                        **Abner Vital | Backend Developer**
-                        * LinkedIn: 
-                        * GitHub: [https://github.com/AbnerVital](https://github.com/AbnerVital)
                         
                         **Cassiano Baldin | Data Scientist**
                         * LinkedIn: [https://www.linkedin.com/in/cassiano-baldin/](https://www.linkedin.com/in/cassiano-baldin/)
@@ -36,15 +32,15 @@ public class OpenApiConfig {
 
                         **Daniela Vieira | Backend Developer**
                         * LinkedIn: [https://www.linkedin.com/in/dani-vieira/](https://www.linkedin.com/in/dani-vieira/)
-                        * GitHub: 
+                        * GitHub: [https://github.com/danielavieiratester](https://github.com/danielavieiratester)
 
                         **Lucas Soares | Backend Developer**
                         * LinkedIn: [https://www.linkedin.com/in/lucass-soaress/](https://www.linkedin.com/in/lucass-soaress/)
                         * GitHub: [https://github.com/lucastnsoares](https://github.com/lucastnsoares)
                         
                         **Wallen Silva | Backend Developer**
-                        * LinkedIn: 
-                        * GitHub: 
+                        * LinkedIn: [https://www.linkedin.com/in/wallensilva/](https://www.linkedin.com/in/wallensilva/)
+                        * GitHub: [https://github.com/wallenoliveira](https://github.com/wallenoliveira)
 
                         ## 🚀 Funcionalidades
                         * **🔮 Previsão de Atrasos**: Estime a pontualidade de voos com IA.
@@ -59,6 +55,7 @@ public class OpenApiConfig {
                         .name("Equipe Chronus - Hackathon G8 ONE")))
                 .externalDocs(new ExternalDocumentation()
                 .description("Repositório do Projeto no GitHub")
-                .url("https://github.com/ebenezercarvalho/hackathon-G8"));
+                .url("https://github.com/ebenezercarvalho/hackathon-G8"))
+                .servers(java.util.List.of(new io.swagger.v3.oas.models.servers.Server().url("/api").description("Default Server URL")));
         }
 }
