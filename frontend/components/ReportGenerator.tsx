@@ -181,6 +181,8 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       doc.line(margin, yPos, pageWidth - margin, yPos);
       yPos += 2; // Reduced from 6mm to 2mm
 
+      const boxSpacing = 3;
+
       // ========== ROW 1: VOO | PROBABILIDADE | CLIMA ==========
       const row1Height = 58;
       const col1Width = contentWidth * 0.42;
@@ -355,47 +357,57 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
         doc.text(t.labelUnknown, box3X + 4, yPos + 20);
       }
 
-      yPos += row1Height + 2; // Reduced from 6mm to 2mm
-
-      doc.setTextColor(...whiteColor);
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
+      yPos += row1Height + boxSpacing;
 
       // ========== ROW 2: ANÁLISE GERAL & TOTAL VOOS ==========
-      yPos += 3;
       const row2Height = 60;
 
       // 1) Análise Geral (Left side)
       // Width: 125mm (~67% of page width)
       const analysisWidth = 125;
 
-      doc.text(t.analyticsHeader, margin, yPos);
+      // Calculate text height to center it
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      const titleHeight = 5; // approx header height
 
-      // Store Y for text start
-      const textStartY = yPos + 6;
-      let textCurrentY = textStartY;
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      const analysisText1 = t.analysisDesc1;
+      const analysisLines1 = doc.splitTextToSize(analysisText1, analysisWidth);
+      const text1Height = analysisLines1.length * 3; // 3mm per line
+
+      const analysisText2 = t.analysisDesc2;
+      const analysisLines2 = doc.splitTextToSize(analysisText2, analysisWidth);
+      const text2Height = analysisLines2.length * 3;
+
+      // title + padding + text1 + padding + text2
+      const totalTextHeight = titleHeight + 4 + text1Height + 2 + text2Height;
+
+      // Center Start Y
+      let textCurrentY = yPos + (row2Height - totalTextHeight) / 2 + titleHeight;
+
+      doc.setTextColor(...whiteColor);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(t.analyticsHeader, margin, textCurrentY - titleHeight - 1); // Adjust for baseline
 
       doc.setTextColor(...slate400);
       doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
 
-      const analysisText1 = t.analysisDesc1;
-      const analysisLines1 = doc.splitTextToSize(analysisText1, analysisWidth);
       doc.text(analysisLines1, margin, textCurrentY);
-      textCurrentY += analysisLines1.length * 3 + 2;
+      textCurrentY += text1Height + 2;
 
-      const analysisText2 = t.analysisDesc2;
-      const analysisLines2 = doc.splitTextToSize(analysisText2, analysisWidth);
       doc.text(analysisLines2, margin, textCurrentY);
 
       // 2) Total de Voos Chart (Right side)
-      // Size: 55mm square (+8mm from previous approx 46mm)
-      const chartSize = 55;
+      // Size: 58.1mm square (matching Rows 3 & 4 height)
+      const chartSize = 58.1;
       const colChartX = margin + analysisWidth + 4; // Spacing of 4mm
 
-      // Align vertically with the block start (roughly)
-      // To center it within the 60mm height:
-      const chartY = yPos + (row2Height - chartSize) / 2 - 2;
+      // Align vertically with the center of the row
+      const chartY = yPos + (row2Height - chartSize) / 2;
 
       doc.setFillColor(15, 23, 42);
       doc.roundedRect(colChartX, chartY, chartSize, chartSize, 2, 2, 'F');
@@ -413,9 +425,9 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       }
 
       // Advance Y position
-      yPos += row2Height + 4;
+      yPos += row2Height + boxSpacing;
 
-      const chartSpacing = 2; // Reduced from 3mm to 2mm
+      const chartSpacing = boxSpacing;
 
       // ========== ROW 3: Atraso por hora (Full Width) ==========
       const chart3Height = 58.1; // Increased to Ideal Height
