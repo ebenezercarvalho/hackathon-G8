@@ -90,7 +90,9 @@ export const translations = {
     labelHourlyTraffic: "HOURLY TRAFFIC",
     labelUnknown: "Data unavailable",
     labelPredictionSystem: "ANALYTICS & PREDICTION SYSTEM",
-    footerPDF: "© 2026 Hackaton ONE developed by Chronos Team"
+    footerPDF: "© 2026 Hackaton ONE developed by Chronos Team",
+    chartUnavailable: "Chart unavailable",
+    chartUnavailableShort: "N/A"
   },
   pt: {
     title: "FllightOnTime",
@@ -181,7 +183,9 @@ export const translations = {
     labelHourlyTraffic: "TRÁFEGO POR HORA",
     labelUnknown: "Dados indisponíveis",
     labelPredictionSystem: "SISTEMA DE ANÁLISE E PREDIÇÃO",
-    footerPDF: "© 2026 Hackaton ONE desenvolvido por Chronos Team"
+    footerPDF: "© 2026 Hackaton ONE desenvolvido por Chronos Team",
+    chartUnavailable: "Gráfico indisponível",
+    chartUnavailableShort: "Indisp."
   },
   es: {
     title: "FllightOnTime",
@@ -272,6 +276,8 @@ export const translations = {
     labelHourlyTraffic: "TRÁFICO POR HORA",
     labelUnknown: "Datos no disponibles",
     labelPredictionSystem: "SISTEMA DE ANÁLISIS Y PREDICCIÓN",
-    footerPDF: "© 2026 Hackaton ONE desarrollado por Chronos Team"
+    footerPDF: "© 2026 Hackaton ONE desarrollado por Chronos Team",
+    chartUnavailable: "Gráfico no disponible",
+    chartUnavailableShort: "No disp."
   }
 };
