@@ -319,7 +319,9 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
         doc.setTextColor(...cyanColor);
         doc.setFontSize(3.5);
         const attributionText = "Dados meteorológicos por Open-Meteo.com";
-        doc.text(attributionText, box3X + 4, yPos + 48, { url: 'https://open-meteo.com' });
+        const textWidth = doc.getTextWidth(attributionText);
+        doc.text(attributionText, box3X + 4, yPos + 48);
+        doc.link(box3X + 4, yPos + 45, textWidth, 4, { url: 'https://open-meteo.com' });
       } else {
         doc.setTextColor(...slate400);
         doc.setFontSize(6);
