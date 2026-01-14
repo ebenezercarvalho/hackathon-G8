@@ -31,12 +31,12 @@ O projeto foi criado para operar como um microserviço independente, ideal para 
 Abaixo estão detalhados os endpoints disponíveis na API.
 
 ### 📚 Documentação Interativa (Swagger UI)
-Acesse `https://flapi.synapsisweb.com/docs` para testar os endpoints.
+Acesse `http://localhost/ml-api/docs` para testar os endpoints.
 
 ---
 
 ### 1. Predição de Atraso
-**Rota:** `POST /predict`
+**Rota:** `POST /ml-api/predict`
 
 Recebe os detalhes de um voo e retorna a análise de risco de atraso.
 
@@ -80,7 +80,7 @@ Recebe os detalhes de um voo e retorna a análise de risco de atraso.
 ---
 
 ### 2. Health Check
-**Rota:** `GET /health`
+**Rota:** `GET /ml-api/health`
 
 Verifica se a API está online e se o modelo de Machine Learning foi carregado corretamente na memória. 
 
@@ -97,7 +97,7 @@ Verifica se a API está online e se o modelo de Machine Learning foi carregado c
 ---
 
 ### 3. Informações do Modelo
-**Rota:** `GET /model-info`
+**Rota:** `GET /ml-api/model-info`
 
 Retorna metadados técnicos sobre a versão do modelo que está sendo executada, incluindo métricas de performance obtidas durante o treinamento.
 
@@ -123,7 +123,7 @@ public class VooRequest {
 
 **Chamada via RestTemplate:**
 ```java
-String url = "https://flapi.synapsisweb.com/predict";
+String url = "http://localhost/ml-api/predict";
 PrevisaoResponse resposta = restTemplate.postForObject(url, vooRequest, PrevisaoResponse.class);
 ```
 

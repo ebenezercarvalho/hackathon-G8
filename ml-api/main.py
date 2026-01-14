@@ -37,10 +37,49 @@ async def lifespan(app: FastAPI):
     
     modelo_completo = None
 
+description_text = """
+API REST para previsão de atrasos de voos utilizando dados de machine learning.
+
+Projeto desenvolvido pela **Equipe Chronos** durante o **Hackathon G8 ONE**.
+
+### 👥 Integrantes
+
+**Ebenézer Carvalho** | Data Scientist | Líder
+* LinkedIn: [https://www.linkedin.com/in/ebenezercarvalho/](https://www.linkedin.com/in/ebenezercarvalho/)
+* GitHub: [https://github.com/ebenezercarvalho](https://github.com/ebenezercarvalho)
+
+**Cassiano Baldin** | Data Scientist
+* LinkedIn: [https://www.linkedin.com/in/cassiano-baldin/](https://www.linkedin.com/in/cassiano-baldin/)
+* GitHub: [https://github.com/obaldin](https://github.com/obaldin)
+
+**Daniela Vieira** | Backend Developer
+* LinkedIn: [https://www.linkedin.com/in/dani-vieira/](https://www.linkedin.com/in/dani-vieira/)
+* GitHub: [https://github.com/danielavieiratester](https://github.com/danielavieiratester)
+
+**Lucas Soares** | Backend Developer
+* LinkedIn: [https://www.linkedin.com/in/lucass-soaress/](https://www.linkedin.com/in/lucass-soaress/)
+* GitHub: [https://github.com/lucastnsoares](https://github.com/lucastnsoares)
+
+**Wallen Silva** | Backend Developer
+* LinkedIn: [https://www.linkedin.com/in/wallensilva/](https://www.linkedin.com/in/wallensilva/)
+* GitHub: [https://github.com/wallenoliveira](https://github.com/wallenoliveira)
+
+### 🚀 Funcionalidades
+* **🔮 Previsão de Atrasos:** Estime a pontualidade de voos com IA.
+
+### 🛠️ Tecnologias
+* Python 3.14
+* FastAPI
+* Pandas
+* Scikit-learn
+
+[Repositório do Projeto no GitHub](https://github.com/ebenezercarvalho/hackathon-G8)
+"""
+
 # Inicializar FastAPI com lifespan
 app = FastAPI(
-    title="Flight Delay Prediction API",
-    description="API de Predição de Atrasos de Voos usando Machine Learning",
+    title="FlightOnTime - Machine Learning",
+    description=description_text,
     version="1.0.0",
     lifespan=lifespan,
     root_path="/ml-api",
@@ -57,7 +96,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     # allow_origins=["*"],
-    allow_origins=[origins], 
+    allow_origins=origins, 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
