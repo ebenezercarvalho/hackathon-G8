@@ -4,6 +4,13 @@ import { FileText, Loader2 } from 'lucide-react';
 import { FlightFormData, PredictionResult, Language } from '../types';
 import { translations } from '../translations';
 
+import logoImg from '../assets/logo.png';
+import totalVoosImg from '../assets/Total_voos_realizados.png';
+import atrasosMesImg from '../assets/atrasos_por_mes.png';
+import atrasosHoraImg from '../assets/atrasos_por_hora.png';
+import atrasosDiaImg from '../assets/atrasos_por_dia_semana.png';
+import mediaAtrasoImg from '../assets/media_atraso_por_hora.png';
+
 interface ReportProps {
   flightData: FlightFormData;
   prediction: PredictionResult;
@@ -42,11 +49,12 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
     const loadImages = async () => {
       try {
         const imageFiles = [
-          { key: 'totalVoos', src: '/img/Total_voos_realizados.png' },
-          { key: 'atrasosMes', src: '/img/atrasos_por_mes.png' },
-          { key: 'atrasosHora', src: '/img/atrasos_por_hora.png' },
-          { key: 'atrasosDia', src: '/img/atrasos_por_dia_semana.png' },
-          { key: 'mediaAtraso', src: '/img/media_atraso_por_hora.png' }
+          { key: 'logo', src: logoImg },
+          { key: 'totalVoos', src: totalVoosImg },
+          { key: 'atrasosMes', src: atrasosMesImg },
+          { key: 'atrasosHora', src: atrasosHoraImg },
+          { key: 'atrasosDia', src: atrasosDiaImg },
+          { key: 'mediaAtraso', src: mediaAtrasoImg }
         ];
 
         const loaded: Record<string, string> = {};
@@ -66,11 +74,11 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
   }, []);
 
   const getDelayLabel = (prob: number): string => {
-    if (prob <= 20) return "Muito Baixo";
-    if (prob <= 40) return "Baixo";
-    if (prob <= 60) return "Médio";
-    if (prob <= 80) return "Alto";
-    return "Muito Alto";
+    if (prob <= 20) return t.delayLevel["Muito baixa"];
+    if (prob <= 40) return t.delayLevel["Baixa"];
+    if (prob <= 60) return t.delayLevel["Média"];
+    if (prob <= 80) return t.delayLevel["Alta"];
+    return t.delayLevel["Muito alta"];
   };
 
   const translateCondition = (condition: string): string => {
@@ -118,43 +126,38 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       // ========== HEADER ==========
       const headerHeight = 18;
 
-      // Logo placeholder (plane icon box)
-      doc.setFillColor(...slateColor);
-      doc.roundedRect(margin, yPos, 16, 16, 2, 2, 'F');
-      doc.setDrawColor(...cyanColor);
-      doc.setLineWidth(0.3);
-      doc.roundedRect(margin, yPos, 16, 16, 2, 2, 'S');
-
-      // Plane icon text (simplified)
-      doc.setTextColor(...cyanColor);
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.text('✈', margin + 8, yPos + 10, { align: 'center' });
-
-      // CHRONOS label
-      doc.setFillColor(...cyanColor);
-      doc.roundedRect(margin + 11, yPos + 13, 18, 4, 1, 1, 'F');
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(5);
-      doc.text('CHRONOS', margin + 20, yPos + 16, { align: 'center' });
+      // Logo (Official)
+      if (images.logo) {
+        try {
+          doc.addImage(images.logo, 'PNG', margin, yPos, 16, 16);
+        } catch (e) {
+          // Fallback to placeholder box if logo fails
+          doc.setFillColor(...slateColor);
+          doc.roundedRect(margin, yPos, 16, 16, 2, 2, 'F');
+        }
+      } else {
+        doc.setFillColor(...slateColor);
+        doc.roundedRect(margin, yPos, 16, 16, 2, 2, 'F');
+      }
 
       // Title
       doc.setTextColor(...whiteColor);
       doc.setFontSize(18);
       doc.setFont('helvetica', 'bold');
-      doc.text('Flight On Time Report', margin + 22, yPos + 8);
+      doc.text(t.title + ' Report', margin + 22, yPos + 8);
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(7);
-      doc.text('ANALYTICS & PREDICTION SYSTEM', margin + 22, yPos + 13);
+      doc.text(t.labelPredictionSystem.toUpperCase(), margin + 22, yPos + 13);
 
       // Date of emission
       doc.setTextColor(...slate500);
       doc.setFontSize(6);
-      doc.text('DATA DE EMISSÃO', pageWidth - margin, yPos + 4, { align: 'right' });
+      doc.text(t.emissionDate, pageWidth - margin, yPos + 4, { align: 'right' });
       doc.setTextColor(...slate400);
       doc.setFontSize(8);
-      doc.text(new Date().toLocaleDateString('pt-BR'), pageWidth - margin, yPos + 9, { align: 'right' });
+      const locales = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' };
+      doc.text(new Date().toLocaleDateString(locales[lang]), pageWidth - margin, yPos + 9, { align: 'right' });
 
       yPos += headerHeight + 4;
 
@@ -179,11 +182,11 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
       doc.setFont('helvetica', 'bold');
-      doc.text('✈ VOO', margin + 4, yPos + 6);
+      doc.text(`✈ ${t.flightDetails.toUpperCase()}`, margin + 4, yPos + 6);
 
       doc.setTextColor(...slate500);
       doc.setFontSize(5);
-      doc.text('ORIGEM', margin + 4, yPos + 14);
+      doc.text(t.labelOrigin, margin + 4, yPos + 14);
       doc.setTextColor(...whiteColor);
       doc.setFontSize(8);
       const originText = flightData.origin?.nome || 'N/A';
@@ -191,7 +194,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...slate500);
       doc.setFontSize(5);
-      doc.text('DESTINO', margin + 4, yPos + 27);
+      doc.text(t.labelDestination, margin + 4, yPos + 27);
       doc.setTextColor(...whiteColor);
       doc.setFontSize(8);
       const destText = flightData.destination?.nome || 'N/A';
@@ -203,17 +206,19 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...slate500);
       doc.setFontSize(5);
-      doc.text('COMPANHIA', margin + 4, yPos + 42);
+      doc.text(t.labelAirline, margin + 4, yPos + 42);
       doc.setTextColor(...cyanColor);
       doc.setFontSize(7);
       doc.text(flightData.airline?.nome?.substring(0, 20) || 'N/A', margin + 4, yPos + 47);
 
       doc.setTextColor(...slate500);
       doc.setFontSize(5);
-      doc.text('DATA DO VOO', margin + col1Width - 35, yPos + 42);
+      doc.text(t.labelDate, margin + col1Width - 35, yPos + 42);
       doc.setTextColor(...slate400);
       doc.setFontSize(7);
-      doc.text(flightData.date || 'N/A', margin + col1Width - 35, yPos + 47);
+      // Format date to DD/MM/YYYY
+      const formattedDate = flightData.date ? flightData.date.split('-').reverse().join('/') : 'N/A';
+      doc.text(formattedDate, margin + col1Width - 35, yPos + 47);
 
       // Box 2: PROBABILIDADE DE ATRASO
       const box2X = margin + col1Width;
@@ -224,7 +229,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
-      doc.text('🛡 PROBABILIDADE DE ATRASO', box2X + 4, yPos + 6);
+      doc.text(`🛡 ${t.labelDelayProb.toUpperCase()}`, box2X + 4, yPos + 6);
 
       const delayProb = 100 - prediction.confidence;
       doc.setTextColor(...whiteColor);
@@ -248,7 +253,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       doc.line(box2X + 4, yPos + 38, box2X + col2Width - 6, yPos + 38);
       doc.setTextColor(...slate400);
       doc.setFontSize(5);
-      const modelText = 'Modelo preditivo em Random Forest treinado com dados históricos da ANAC de janeiro a outubro de 2025.';
+      const modelText = t.analysisDesc2;
       const modelLines = doc.splitTextToSize(modelText, col2Width - 12);
       doc.text(modelLines, box2X + 4, yPos + 43);
 
@@ -261,7 +266,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
-      doc.text('☁ CLIMA', box3X + 4, yPos + 6);
+      doc.text(`☁ ${t.labelWeather.toUpperCase()}`, box3X + 4, yPos + 6);
 
       if (prediction.weather) {
         doc.setTextColor(...cyanColor);
@@ -270,28 +275,28 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
         doc.setTextColor(...slate500);
         doc.setFontSize(5);
-        doc.text('TEMPERATURA', box3X + 4, yPos + 22);
+        doc.text(t.labelTemp.toUpperCase(), box3X + 4, yPos + 22);
         doc.setTextColor(...whiteColor);
         doc.setFontSize(7);
         doc.text(`${Math.round(prediction.weather.minTemp)}° / ${Math.round(prediction.weather.maxTemp)}°C`, box3X + 4, yPos + 27);
 
         doc.setTextColor(...slate500);
         doc.setFontSize(5);
-        doc.text('VENTO', box3X + 4, yPos + 33);
+        doc.text(t.labelWind.toUpperCase(), box3X + 4, yPos + 33);
         doc.setTextColor(...whiteColor);
         doc.setFontSize(7);
         doc.text(`${prediction.weather.windSpeed.toFixed(1)} km/h`, box3X + 4, yPos + 38);
 
         doc.setTextColor(...slate500);
         doc.setFontSize(5);
-        doc.text('UMIDADE', box3X + 4, yPos + 44);
+        doc.text(t.labelHumidity.toUpperCase(), box3X + 4, yPos + 44);
         doc.setTextColor(...whiteColor);
         doc.setFontSize(7);
         doc.text(`${prediction.weather.humidity}%`, box3X + 4, yPos + 49);
       } else {
         doc.setTextColor(...slate400);
         doc.setFontSize(7);
-        doc.text('Dados indisponíveis', box3X + 4, yPos + 20);
+        doc.text(t.labelUnknown, box3X + 4, yPos + 20);
       }
 
       yPos += row1Height + 6;
@@ -304,18 +309,18 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       doc.setTextColor(...whiteColor);
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text('Análise Geral sobre Atrasos de Voos', margin, yPos);
+      doc.text(t.analyticsHeader, margin, yPos);
       yPos += 6;
 
       doc.setTextColor(...slate400);
       doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
-      const analysisText1 = 'Os gráficos destacam quando e com que intensidade ocorrem os atrasos, considerando meses, horários e dias da semana. Essas análises ajudam a identificar padrões temporais críticos que influenciam a pontualidade dos voos.';
+      const analysisText1 = t.analysisDesc1;
       const analysisLines1 = doc.splitTextToSize(analysisText1, contentWidth);
       doc.text(analysisLines1, margin, yPos);
       yPos += analysisLines1.length * 3 + 2;
 
-      const analysisText2 = 'Para este trabalho, foram utilizados dados históricos da ANAC referentes ao período de janeiro a outubro de 2025.';
+      const analysisText2 = t.analysisDesc2;
       const analysisLines2 = doc.splitTextToSize(analysisText2, contentWidth);
       doc.text(analysisLines2, margin, yPos);
       yPos += analysisLines2.length * 3 + 6;
@@ -333,7 +338,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
-      doc.text('📊 TOTAL DE VOOS REALIZADOS', margin + 4, yPos + 6);
+      doc.text(`📊 ${t.labelTotalFlights}`, margin + 4, yPos + 6);
 
       if (images.totalVoos) {
         try {
@@ -354,7 +359,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
-      doc.text('📅 ATRASOS DE VOOS POR MÊS', chart2X + 4, yPos + 6);
+      doc.text(`📅 ${t.labelDelaysByMonth}`, chart2X + 4, yPos + 6);
 
       if (images.atrasosMes) {
         try {
@@ -378,7 +383,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
-      doc.text('📈 IMPACTO SEMANAL (VOLUME DE ATRASOS)', margin + 4, yPos + 6);
+      doc.text(`📈 ${t.labelWeeklyImpact}`, margin + 4, yPos + 6);
 
       if (images.atrasosDia) {
         try {
@@ -404,7 +409,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
-      doc.text('🕐 FREQUÊNCIA DE ATRASOS POR HORA', margin + 4, yPos + 6);
+      doc.text(`🕐 ${t.labelDelaysByHour}`, margin + 4, yPos + 6);
 
       if (images.atrasosHora) {
         try {
@@ -425,7 +430,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
-      doc.text('⏱ TRÁFEGO POR HORA', chart4X + 4, yPos + 6);
+      doc.text(`⏱ ${t.labelHourlyTraffic}`, chart4X + 4, yPos + 6);
 
       if (images.mediaAtraso) {
         try {
@@ -446,7 +451,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       doc.setTextColor(...slate500);
       doc.setFontSize(7);
       doc.setFont('helvetica', 'bold');
-      doc.text('© 2026 Hackaton ONE desenvolvido por Chronos Team', pageWidth / 2, pageHeight - 10, { align: 'center' });
+      doc.text(t.footerPDF, pageWidth / 2, pageHeight - 10, { align: 'center' });
 
       // Save PDF
       const originName = flightData.origin?.nome?.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 15) || 'origem';
