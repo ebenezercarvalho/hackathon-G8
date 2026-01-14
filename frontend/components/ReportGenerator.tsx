@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { FileText, Loader2 } from 'lucide-react';
 import { FlightFormData, PredictionResult, Language } from '../types';
 import { translations } from '../translations';
@@ -11,129 +10,454 @@ interface ReportProps {
   lang: Language;
 }
 
+// Helper to load image as base64
+const loadImageAsBase64 = (src: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } else {
+        reject(new Error('Could not get canvas context'));
+      }
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
+};
+
 const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }) => {
   const [generating, setGenerating] = useState(false);
+  const [images, setImages] = useState<Record<string, string>>({});
   const t = translations[lang];
 
-  const generatePDF = () => {
+  // Preload images on mount
+  useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const imageFiles = [
+          { key: 'totalVoos', src: '/img/Total_voos_realizados.png' },
+          { key: 'atrasosMes', src: '/img/atrasos_por_mes.png' },
+          { key: 'atrasosHora', src: '/img/atrasos_por_hora.png' },
+          { key: 'atrasosDia', src: '/img/atrasos_por_dia_semana.png' },
+          { key: 'mediaAtraso', src: '/img/media_atraso_por_hora.png' }
+        ];
+
+        const loaded: Record<string, string> = {};
+        for (const { key, src } of imageFiles) {
+          try {
+            loaded[key] = await loadImageAsBase64(src);
+          } catch (e) {
+            console.warn(`Could not load image: ${src}`);
+          }
+        }
+        setImages(loaded);
+      } catch (e) {
+        console.error('Error loading images:', e);
+      }
+    };
+    loadImages();
+  }, []);
+
+  const getDelayLabel = (prob: number): string => {
+    if (prob <= 20) return "Muito Baixo";
+    if (prob <= 40) return "Baixo";
+    if (prob <= 60) return "Médio";
+    if (prob <= 80) return "Alto";
+    return "Muito Alto";
+  };
+
+  const translateCondition = (condition: string): string => {
+    const mapping: Record<string, string> = {
+      'Clear': t.clear || 'Céu Limpo',
+      'Clouds': t.clouds || 'Nublado',
+      'Rain': t.rain || 'Chuva',
+      'Thunderstorm': t.thunderstorm || 'Tempestade',
+      'Snow': t.snow || 'Neve',
+      'Unknown': t.unknown || 'Desconhecido'
+    };
+    return mapping[condition] || condition;
+  };
+
+  const generatePDF = async () => {
     setGenerating(true);
 
-    setTimeout(() => {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-
-      // Header
-      doc.setFillColor(15, 23, 42);
-      doc.rect(0, 0, pageWidth, 40, 'F');
-
-      doc.setTextColor(34, 211, 238);
-      doc.setFontSize(22);
-      doc.setFont('helvetica', 'bold');
-      doc.text(t.title, 14, 20);
-
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(t.reportTitle, 14, 30);
-      doc.text(
-        `DATE: ${new Date().toLocaleString()}`,
-        pageWidth - 14,
-        30,
-        { align: 'right' }
-      );
-
-      // Flight Information
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`1. ${t.flightDetails}`, 14, 50);
-
-      autoTable(doc, {
-        startY: 55,
-        head: [[t.origin, t.destination, t.date, t.exactTime, t.airline]],
-        body: [
-          [
-            flightData.origin.nome,
-            flightData.destination.nome,
-            flightData.date,
-            flightData.time,
-            flightData.airline.nome
-          ]
-        ],
-        theme: 'grid',
-        headStyles: { fillColor: [6, 182, 212] }
+    try {
+      // A4 dimensions: 210mm x 297mm
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
       });
 
-      // Prediction Result
-      const finalY = (doc as any).lastAutoTable.finalY + 15;
-      doc.text(`2. ${t.predictionHeader}`, 14, finalY);
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 12;
+      const contentWidth = pageWidth - (margin * 2);
 
-      doc.setFontSize(12);
-      if (prediction.isDelayed) {
-        doc.setTextColor(220, 38, 38);
-        doc.text(
-          `STATUS: ${t.highDelayProb.toUpperCase()}`,
-          14,
-          finalY + 10
-        );
-      } else {
-        doc.setTextColor(22, 163, 74);
-        doc.text(
-          `STATUS: ${t.onTimeLikely.toUpperCase()}`,
-          14,
-          finalY + 10
-        );
-      }
+      // Colors
+      const bgColor: [number, number, number] = [11, 20, 36]; // #0b1424
+      const slateColor: [number, number, number] = [30, 41, 59]; // #1e293b
+      const cyanColor: [number, number, number] = [6, 182, 212]; // #06b6d4
+      const whiteColor: [number, number, number] = [255, 255, 255];
+      const slate400: [number, number, number] = [148, 163, 184];
+      const slate500: [number, number, number] = [100, 116, 139];
 
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(12);
-      doc.text(
-        `${t.confidence}: ${prediction.confidence}%`,
-        14,
-        finalY + 20
-      );
+      // Full page background
+      doc.setFillColor(...bgColor);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
-      // Weather Data
-      const weatherY = finalY + 35;
-      doc.setFontSize(14);
+      let yPos = margin;
+
+      // ========== HEADER ==========
+      const headerHeight = 18;
+
+      // Logo placeholder (plane icon box)
+      doc.setFillColor(...slateColor);
+      doc.roundedRect(margin, yPos, 16, 16, 2, 2, 'F');
+      doc.setDrawColor(...cyanColor);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin, yPos, 16, 16, 2, 2, 'S');
+
+      // Plane icon text (simplified)
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text(`3. ${t.metForecastHeader}`, 14, weatherY);
+      doc.text('✈', margin + 8, yPos + 10, { align: 'center' });
+
+      // CHRONOS label
+      doc.setFillColor(...cyanColor);
+      doc.roundedRect(margin + 11, yPos + 13, 18, 4, 1, 1, 'F');
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(5);
+      doc.text('CHRONOS', margin + 20, yPos + 16, { align: 'center' });
+
+      // Title
+      doc.setTextColor(...whiteColor);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Flight On Time Report', margin + 22, yPos + 8);
+
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(7);
+      doc.text('ANALYTICS & PREDICTION SYSTEM', margin + 22, yPos + 13);
+
+      // Date of emission
+      doc.setTextColor(...slate500);
+      doc.setFontSize(6);
+      doc.text('DATA DE EMISSÃO', pageWidth - margin, yPos + 4, { align: 'right' });
+      doc.setTextColor(...slate400);
+      doc.setFontSize(8);
+      doc.text(new Date().toLocaleDateString('pt-BR'), pageWidth - margin, yPos + 9, { align: 'right' });
+
+      yPos += headerHeight + 4;
+
+      // Divider line
+      doc.setDrawColor(...slateColor);
+      doc.setLineWidth(0.3);
+      doc.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 6;
+
+      // ========== ROW 1: VOO | PROBABILIDADE | CLIMA ==========
+      const row1Height = 50;
+      const col1Width = contentWidth * 0.42;
+      const col2Width = contentWidth * 0.33;
+      const col3Width = contentWidth * 0.25;
+
+      // Box 1: VOO
+      doc.setFillColor(15, 23, 42);
+      doc.roundedRect(margin, yPos, col1Width - 2, row1Height, 2, 2, 'F');
+      doc.setDrawColor(...slateColor);
+      doc.roundedRect(margin, yPos, col1Width - 2, row1Height, 2, 2, 'S');
+
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'bold');
+      doc.text('✈ VOO', margin + 4, yPos + 6);
+
+      doc.setTextColor(...slate500);
+      doc.setFontSize(5);
+      doc.text('ORIGEM', margin + 4, yPos + 14);
+      doc.setTextColor(...whiteColor);
+      doc.setFontSize(8);
+      const originText = flightData.origin?.nome || 'N/A';
+      doc.text(originText.substring(0, 35), margin + 4, yPos + 19);
+
+      doc.setTextColor(...slate500);
+      doc.setFontSize(5);
+      doc.text('DESTINO', margin + 4, yPos + 27);
+      doc.setTextColor(...whiteColor);
+      doc.setFontSize(8);
+      const destText = flightData.destination?.nome || 'N/A';
+      doc.text(destText.substring(0, 35), margin + 4, yPos + 32);
+
+      // Divider
+      doc.setDrawColor(30, 41, 59);
+      doc.line(margin + 4, yPos + 37, margin + col1Width - 6, yPos + 37);
+
+      doc.setTextColor(...slate500);
+      doc.setFontSize(5);
+      doc.text('COMPANHIA', margin + 4, yPos + 42);
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(7);
+      doc.text(flightData.airline?.nome?.substring(0, 20) || 'N/A', margin + 4, yPos + 47);
+
+      doc.setTextColor(...slate500);
+      doc.setFontSize(5);
+      doc.text('DATA DO VOO', margin + col1Width - 35, yPos + 42);
+      doc.setTextColor(...slate400);
+      doc.setFontSize(7);
+      doc.text(flightData.date || 'N/A', margin + col1Width - 35, yPos + 47);
+
+      // Box 2: PROBABILIDADE DE ATRASO
+      const box2X = margin + col1Width;
+      doc.setFillColor(15, 23, 42);
+      doc.roundedRect(box2X, yPos, col2Width - 2, row1Height, 2, 2, 'F');
+      doc.setDrawColor(...slateColor);
+      doc.roundedRect(box2X, yPos, col2Width - 2, row1Height, 2, 2, 'S');
+
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(6);
+      doc.text('🛡 PROBABILIDADE DE ATRASO', box2X + 4, yPos + 6);
+
+      const delayProb = 100 - prediction.confidence;
+      doc.setTextColor(...whiteColor);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${delayProb}%`, box2X + 4, yPos + 20);
+
+      // Progress bar
+      doc.setFillColor(...slateColor);
+      doc.roundedRect(box2X + 4, yPos + 24, col2Width - 12, 3, 1, 1, 'F');
+      doc.setFillColor(...cyanColor);
+      const barWidth = (delayProb / 100) * (col2Width - 12);
+      doc.roundedRect(box2X + 4, yPos + 24, barWidth, 3, 1, 1, 'F');
+
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(8);
+      doc.text(getDelayLabel(delayProb).toUpperCase(), box2X + 4, yPos + 33);
+
+      // Model info
+      doc.setDrawColor(30, 41, 59);
+      doc.line(box2X + 4, yPos + 38, box2X + col2Width - 6, yPos + 38);
+      doc.setTextColor(...slate400);
+      doc.setFontSize(5);
+      const modelText = 'Modelo preditivo em Random Forest treinado com dados históricos da ANAC de janeiro a outubro de 2025.';
+      const modelLines = doc.splitTextToSize(modelText, col2Width - 12);
+      doc.text(modelLines, box2X + 4, yPos + 43);
+
+      // Box 3: CLIMA
+      const box3X = margin + col1Width + col2Width;
+      doc.setFillColor(15, 23, 42);
+      doc.roundedRect(box3X, yPos, col3Width, row1Height, 2, 2, 'F');
+      doc.setDrawColor(...slateColor);
+      doc.roundedRect(box3X, yPos, col3Width, row1Height, 2, 2, 'S');
+
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(6);
+      doc.text('☁ CLIMA', box3X + 4, yPos + 6);
 
       if (prediction.weather) {
-        autoTable(doc, {
-          startY: weatherY + 5,
-          head: [[t.skyCondition, t.tempRange, t.windSpeed, t.humidity, t.rainProb]],
-          body: [
-            [
-              prediction.weather.condition,
-              `${Math.round(prediction.weather.minTemp)}° / ${Math.round(
-                prediction.weather.maxTemp
-              )}°C`,
-              `${prediction.weather.windSpeed.toFixed(1)} km/h`,
-              `${prediction.weather.humidity}%`,
-              `${prediction.weather.rainProbability}%`
-            ]
-          ],
-          theme: 'striped',
-          headStyles: { fillColor: [30, 41, 59] }
-        });
+        doc.setTextColor(...cyanColor);
+        doc.setFontSize(8);
+        doc.text(translateCondition(prediction.weather.condition).toUpperCase(), box3X + 4, yPos + 14);
+
+        doc.setTextColor(...slate500);
+        doc.setFontSize(5);
+        doc.text('TEMPERATURA', box3X + 4, yPos + 22);
+        doc.setTextColor(...whiteColor);
+        doc.setFontSize(7);
+        doc.text(`${Math.round(prediction.weather.minTemp)}° / ${Math.round(prediction.weather.maxTemp)}°C`, box3X + 4, yPos + 27);
+
+        doc.setTextColor(...slate500);
+        doc.setFontSize(5);
+        doc.text('VENTO', box3X + 4, yPos + 33);
+        doc.setTextColor(...whiteColor);
+        doc.setFontSize(7);
+        doc.text(`${prediction.weather.windSpeed.toFixed(1)} km/h`, box3X + 4, yPos + 38);
+
+        doc.setTextColor(...slate500);
+        doc.setFontSize(5);
+        doc.text('UMIDADE', box3X + 4, yPos + 44);
+        doc.setTextColor(...whiteColor);
+        doc.setFontSize(7);
+        doc.text(`${prediction.weather.humidity}%`, box3X + 4, yPos + 49);
       } else {
-        // 🔒 Previsão indisponível (mantém layout do relatório)
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(120, 120, 120);
-        doc.text(
-          t.weatherUnavailable ?? 'Dados meteorológicos indisponíveis',
-          14,
-          weatherY + 10
-        );
+        doc.setTextColor(...slate400);
+        doc.setFontSize(7);
+        doc.text('Dados indisponíveis', box3X + 4, yPos + 20);
       }
 
-      doc.save(
-        `flight_report_${flightData.origin.nome}_${flightData.destination.nome}.pdf`
-      );
+      yPos += row1Height + 6;
+
+      // ========== ANÁLISE GERAL ==========
+      doc.setDrawColor(...slateColor);
+      doc.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 6;
+
+      doc.setTextColor(...whiteColor);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Análise Geral sobre Atrasos de Voos', margin, yPos);
+      yPos += 6;
+
+      doc.setTextColor(...slate400);
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      const analysisText1 = 'Os gráficos destacam quando e com que intensidade ocorrem os atrasos, considerando meses, horários e dias da semana. Essas análises ajudam a identificar padrões temporais críticos que influenciam a pontualidade dos voos.';
+      const analysisLines1 = doc.splitTextToSize(analysisText1, contentWidth);
+      doc.text(analysisLines1, margin, yPos);
+      yPos += analysisLines1.length * 3 + 2;
+
+      const analysisText2 = 'Para este trabalho, foram utilizados dados históricos da ANAC referentes ao período de janeiro a outubro de 2025.';
+      const analysisLines2 = doc.splitTextToSize(analysisText2, contentWidth);
+      doc.text(analysisLines2, margin, yPos);
+      yPos += analysisLines2.length * 3 + 6;
+
+      // ========== ROW 2: CHARTS (Pizza + Barras Mês) ==========
+      const chartRow1Height = 52;
+      const chart1Width = contentWidth * 0.35;
+      const chart2Width = contentWidth * 0.65;
+
+      // Chart 1: Total de voos realizados (Pizza)
+      doc.setFillColor(15, 23, 42);
+      doc.roundedRect(margin, yPos, chart1Width - 2, chartRow1Height, 2, 2, 'F');
+      doc.setDrawColor(...slateColor);
+      doc.roundedRect(margin, yPos, chart1Width - 2, chartRow1Height, 2, 2, 'S');
+
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(6);
+      doc.text('📊 TOTAL DE VOOS REALIZADOS', margin + 4, yPos + 6);
+
+      if (images.totalVoos) {
+        try {
+          doc.addImage(images.totalVoos, 'PNG', margin + 4, yPos + 9, chart1Width - 10, chartRow1Height - 14);
+        } catch (e) {
+          doc.setTextColor(...slate400);
+          doc.setFontSize(6);
+          doc.text('Gráfico indisponível', margin + 10, yPos + 30);
+        }
+      }
+
+      // Chart 2: Atrasos por Mês
+      const chart2X = margin + chart1Width;
+      doc.setFillColor(15, 23, 42);
+      doc.roundedRect(chart2X, yPos, chart2Width, chartRow1Height, 2, 2, 'F');
+      doc.setDrawColor(...slateColor);
+      doc.roundedRect(chart2X, yPos, chart2Width, chartRow1Height, 2, 2, 'S');
+
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(6);
+      doc.text('📅 ATRASOS DE VOOS POR MÊS', chart2X + 4, yPos + 6);
+
+      if (images.atrasosMes) {
+        try {
+          doc.addImage(images.atrasosMes, 'PNG', chart2X + 4, yPos + 9, chart2Width - 10, chartRow1Height - 14);
+        } catch (e) {
+          doc.setTextColor(...slate400);
+          doc.setFontSize(6);
+          doc.text('Gráfico indisponível', chart2X + 30, yPos + 30);
+        }
+      }
+
+      yPos += chartRow1Height + 4;
+
+      // ========== ROW 3: IMPACTO SEMANAL ==========
+      const chartRow2Height = 40;
+
+      doc.setFillColor(15, 23, 42);
+      doc.roundedRect(margin, yPos, contentWidth, chartRow2Height, 2, 2, 'F');
+      doc.setDrawColor(...slateColor);
+      doc.roundedRect(margin, yPos, contentWidth, chartRow2Height, 2, 2, 'S');
+
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(6);
+      doc.text('📈 IMPACTO SEMANAL (VOLUME DE ATRASOS)', margin + 4, yPos + 6);
+
+      if (images.atrasosDia) {
+        try {
+          doc.addImage(images.atrasosDia, 'PNG', margin + 4, yPos + 9, contentWidth - 10, chartRow2Height - 14);
+        } catch (e) {
+          doc.setTextColor(...slate400);
+          doc.setFontSize(6);
+          doc.text('Gráfico indisponível', margin + (contentWidth / 2), yPos + 25, { align: 'center' });
+        }
+      }
+
+      yPos += chartRow2Height + 4;
+
+      // ========== ROW 4: FREQUÊNCIA + SEVERIDADE ==========
+      const chartRow3Height = 42;
+      const halfWidth = contentWidth / 2;
+
+      // Chart: Frequência de Atrasos por Hora
+      doc.setFillColor(15, 23, 42);
+      doc.roundedRect(margin, yPos, halfWidth - 2, chartRow3Height, 2, 2, 'F');
+      doc.setDrawColor(...slateColor);
+      doc.roundedRect(margin, yPos, halfWidth - 2, chartRow3Height, 2, 2, 'S');
+
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(6);
+      doc.text('🕐 FREQUÊNCIA DE ATRASOS POR HORA', margin + 4, yPos + 6);
+
+      if (images.atrasosHora) {
+        try {
+          doc.addImage(images.atrasosHora, 'PNG', margin + 4, yPos + 9, halfWidth - 10, chartRow3Height - 14);
+        } catch (e) {
+          doc.setTextColor(...slate400);
+          doc.setFontSize(6);
+          doc.text('Gráfico indisponível', margin + 25, yPos + 25);
+        }
+      }
+
+      // Chart: Média de Atraso por Hora
+      const chart4X = margin + halfWidth;
+      doc.setFillColor(15, 23, 42);
+      doc.roundedRect(chart4X, yPos, halfWidth, chartRow3Height, 2, 2, 'F');
+      doc.setDrawColor(...slateColor);
+      doc.roundedRect(chart4X, yPos, halfWidth, chartRow3Height, 2, 2, 'S');
+
+      doc.setTextColor(...cyanColor);
+      doc.setFontSize(6);
+      doc.text('⏱ TRÁFEGO POR HORA', chart4X + 4, yPos + 6);
+
+      if (images.mediaAtraso) {
+        try {
+          doc.addImage(images.mediaAtraso, 'PNG', chart4X + 4, yPos + 9, halfWidth - 10, chartRow3Height - 14);
+        } catch (e) {
+          doc.setTextColor(...slate400);
+          doc.setFontSize(6);
+          doc.text('Gráfico indisponível', chart4X + 25, yPos + 25);
+        }
+      }
+
+      yPos += chartRow3Height + 6;
+
+      // ========== FOOTER ==========
+      doc.setDrawColor(...slateColor);
+      doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+
+      doc.setTextColor(...slate500);
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'bold');
+      doc.text('© 2026 Hackaton ONE desenvolvido por Chronos Team', pageWidth / 2, pageHeight - 10, { align: 'center' });
+
+      // Save PDF
+      const originName = flightData.origin?.nome?.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 15) || 'origem';
+      const destName = flightData.destination?.nome?.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 15) || 'destino';
+      doc.save(`flight_report_${originName}_${destName}.pdf`);
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
       setGenerating(false);
-    }, 1000);
+    }
   };
 
   return (

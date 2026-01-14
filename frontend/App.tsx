@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Plane, Calendar, Clock, MapPin, Activity, ArrowRight, Languages, Loader2 } from 'lucide-react';
 import { FlightFormData, PredictionResult, Language, Airport, Airline } from './types';
 import { predictFlightDelay, ApiError } from './services/predictionService';
@@ -23,6 +23,13 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [resetKey, setResetKey] = useState(0);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (loading && resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [loading]);
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [formData, setFormData] = useState<FlightFormData>({
     origin: null,
@@ -118,15 +125,15 @@ function App() {
     <div className="min-h-screen bg-gradient-to-b from-slate-800 via-[#020617] to-black bg-fixed text-slate-300 font-sans selection:bg-cyan-500/30">
 
       {/* Header */}
-      <header className="relative w-full h-[106px] border-b border-slate-700 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
+      <header className="relative w-full h-20 sm:h-[106px] border-b border-slate-700 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
         <div className="max-w-4xl mx-auto px-4 py-0.5 h-full flex items-center justify-between">
-          <div className="flex items-center gap-[5px]">
-            <div className="">
-              <img src={logo} alt="Chronos Logo" className="h-[102px] w-auto" />
+          <div className="flex items-center gap-2 sm:gap-[5px]">
+            <div className="flex-shrink-0">
+              <img src={logo} alt="Chronos Logo" className="h-16 sm:h-[102px] w-auto transition-all duration-300" />
             </div>
-            <div>
-              <h1 className="text-xl font-black text-white tracking-tight">{t.title}</h1>
-              <p className="text-[10px] font-mono text-cyan-600 tracking-widest uppercase">{t.subtitle}</p>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-black text-white tracking-tight truncate">{t.title}</h1>
+              <p className="text-[8px] sm:text-[10px] font-mono text-cyan-600 tracking-widest uppercase truncate">{t.subtitle}</p>
             </div>
           </div>
 
@@ -189,7 +196,7 @@ function App() {
                 endpoint="companhia-aerea"
                 value={formData.airline}
                 onChange={(val) => handleAutocompleteChange('airline', val as Airline)}
-                  lang={lang}
+                lang={lang}
               />
             </div>
 
@@ -247,7 +254,7 @@ function App() {
         </section>
 
         {/* RESULTS SECTION */}
-        <div aria-live="polite" className="transition-all duration-700">
+        <div ref={resultsRef} aria-live="polite" className="transition-all duration-700 scroll-mt-24">
           {loading && !result && (
             <div className="flex flex-col items-center justify-center py-20 animate-pulse">
               <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-4" aria-hidden="true"></div>
