@@ -183,7 +183,6 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       // ========== ROW 1: VOO | PROBABILIDADE | CLIMA ==========
       const row1Height = 58;
-      const row1HeightSmall = 54;
       const col1Width = contentWidth * 0.42;
       const col2Width = contentWidth * 0.33;
       const col3Width = contentWidth * 0.25;
@@ -249,9 +248,9 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       // Box 2: PROBABILIDADE DE ATRASO
       const box2X = margin + col1Width;
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(box2X, yPos, col2Width - 2, row1HeightSmall, 2, 2, 'F');
+      doc.roundedRect(box2X, yPos, col2Width - 2, row1Height, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(box2X, yPos, col2Width - 2, row1HeightSmall, 2, 2, 'S');
+      doc.roundedRect(box2X, yPos, col2Width - 2, row1Height, 2, 2, 'S');
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
@@ -293,9 +292,9 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       // Box 3: CLIMA
       const box3X = margin + col1Width + col2Width;
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(box3X, yPos, col3Width, row1HeightSmall, 2, 2, 'F');
+      doc.roundedRect(box3X, yPos, col3Width, row1Height, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(box3X, yPos, col3Width, row1HeightSmall, 2, 2, 'S');
+      doc.roundedRect(box3X, yPos, col3Width, row1Height, 2, 2, 'S');
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
@@ -361,15 +360,20 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       doc.setTextColor(...whiteColor);
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      // "Análise Geral" text - spans col1 + col2
-      // Start 3mm after row1
-      yPos += 3;
 
-      const analysisWidth = col1Width + col2Width - 4;
-      const startAnalysisY = yPos;
+      // ========== ROW 2: ANÁLISE GERAL & TOTAL VOOS ==========
+      yPos += 3;
+      const row2Height = 60;
+
+      // 1) Análise Geral (Left side)
+      // Width: 125mm (~67% of page width)
+      const analysisWidth = 125;
 
       doc.text(t.analyticsHeader, margin, yPos);
-      yPos += 6;
+
+      // Store Y for text start
+      const textStartY = yPos + 6;
+      let textCurrentY = textStartY;
 
       doc.setTextColor(...slate400);
       doc.setFontSize(7);
@@ -377,70 +381,41 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       const analysisText1 = t.analysisDesc1;
       const analysisLines1 = doc.splitTextToSize(analysisText1, analysisWidth);
-      doc.text(analysisLines1, margin, yPos);
-      yPos += analysisLines1.length * 3 + 2;
+      doc.text(analysisLines1, margin, textCurrentY);
+      textCurrentY += analysisLines1.length * 3 + 2;
 
       const analysisText2 = t.analysisDesc2;
       const analysisLines2 = doc.splitTextToSize(analysisText2, analysisWidth);
-      doc.text(analysisLines2, margin, yPos);
-      yPos += analysisLines2.length * 3 + 2;
+      doc.text(analysisLines2, margin, textCurrentY);
 
-      // Calculate the height used by text to know where to continue later, 
-      // but we need to place the chart in parallel.
-      const textEndY = yPos;
+      // 2) Total de Voos Chart (Right side)
+      // Size: 55mm square (+8mm from previous approx 46mm)
+      const chartSize = 55;
+      const colChartX = margin + analysisWidth + 4; // Spacing of 4mm
 
-      // Column 3: Total Flights Chart (Square, same width as Weather box) (moved from below)
-      // Position: Same Y as "Análise Geral" header start (approximately) or aligned top
-      const chartSquareSize = col3Width;
-      const col3X = margin + col1Width + col2Width;
-
-      // We align the chart top with the start of Analysis text section (startAnalysisY)
-      // but let's give it a container
-      const totalVoosY = startAnalysisY;
+      // Align vertically with the block start (roughly)
+      // To center it within the 60mm height:
+      const chartY = yPos + (row2Height - chartSize) / 2 - 2;
 
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(col3X, totalVoosY, chartSquareSize, chartSquareSize, 2, 2, 'F');
+      doc.roundedRect(colChartX, chartY, chartSize, chartSize, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(col3X, totalVoosY, chartSquareSize, chartSquareSize, 2, 2, 'S');
+      doc.roundedRect(colChartX, chartY, chartSize, chartSize, 2, 2, 'S');
 
       if (images.totalVoos) {
         try {
-          doc.addImage(images.totalVoos, 'JPEG', col3X + 2, totalVoosY + 2, chartSquareSize - 4, chartSquareSize - 4, undefined, 'FAST');
+          doc.addImage(images.totalVoos, 'JPEG', colChartX + 2, chartY + 2, chartSize - 4, chartSize - 4, undefined, 'FAST');
         } catch (e) {
           doc.setTextColor(...slate400);
           doc.setFontSize(6);
-          doc.text(t.chartUnavailableShort, col3X + chartSquareSize / 2, totalVoosY + chartSquareSize / 2, { align: 'center' });
+          doc.text(t.chartUnavailableShort, colChartX + chartSize / 2, chartY + chartSize / 2, { align: 'center' });
         }
       }
 
-      // Update yPos to be below the tallest element (Text or Chart)
-      // Add some buffer
-      yPos = Math.max(textEndY, totalVoosY + chartSquareSize) + 5;
+      // Advance Y position
+      yPos += row2Height + 4;
 
-      // ========== ROW 2: Atrasos por dias da semana (Moved here) ==========
-      // "ajustar esse gráfico para o início da linha..."
-      // We'll make it full width or substantial width to fit "10, 6.5" ratio 
-      // Ratio 10:6.5 is roughly 1.53:1
-      const chartDiaWidth = 140; // width in mm
-      const chartDiaHeight = chartDiaWidth / 1.53;
-
-      doc.setFillColor(15, 23, 42);
-      doc.roundedRect(margin, yPos, chartDiaWidth, chartDiaHeight, 2, 2, 'F');
-      doc.setDrawColor(...slateColor);
-      doc.roundedRect(margin, yPos, chartDiaWidth, chartDiaHeight, 2, 2, 'S');
-
-      if (images.atrasosDia) {
-        try {
-          doc.addImage(images.atrasosDia, 'JPEG', margin + 2, yPos + 2, chartDiaWidth - 4, chartDiaHeight - 4, undefined, 'FAST');
-        } catch (e) {
-          doc.setTextColor(...slate400);
-          doc.setFontSize(6);
-          doc.text(t.chartUnavailable, margin + chartDiaWidth / 2, yPos + chartDiaHeight / 2, { align: 'center' });
-        }
-      }
-      yPos += chartDiaHeight + 2;
-
-      const chartSpacing = 2;
+      const chartSpacing = 2; // Reduced from 3mm to 2mm
 
       // ========== ROW 3: Atraso por hora (Full Width) ==========
       const chart3Height = 58.1; // Increased to Ideal Height
