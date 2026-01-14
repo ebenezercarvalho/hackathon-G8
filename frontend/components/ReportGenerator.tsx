@@ -18,6 +18,7 @@ interface ReportProps {
 }
 
 // Helper to load image as base64
+// Helper to load image as base64 with compression
 const loadImageAsBase64 = (src: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -29,7 +30,8 @@ const loadImageAsBase64 = (src: string): Promise<string> => {
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL('image/png'));
+        // Use JPEG with 0.7 quality to significantly reduce PDF size
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
       } else {
         reject(new Error('Could not get canvas context'));
       }
@@ -182,7 +184,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
       doc.setFont('helvetica', 'bold');
-      doc.text(`✈ ${t.flightDetails.toUpperCase()}`, margin + 4, yPos + 6);
+      doc.text(t.flightDetails.toUpperCase(), margin + 4, yPos + 6);
 
       doc.setTextColor(...slate500);
       doc.setFontSize(5);
@@ -229,9 +231,16 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
-      doc.text(`🛡 ${t.labelDelayProb.toUpperCase()}`, box2X + 4, yPos + 6);
+      doc.text(t.labelDelayProb.toUpperCase(), box2X + 4, yPos + 6);
 
       const delayProb = 100 - prediction.confidence;
+
+      // Determine risk color based on percentage (matching frontend)
+      let riskColor: [number, number, number] = [255, 255, 255];
+      if (delayProb <= 40) riskColor = [34, 197, 94]; // Green
+      else if (delayProb <= 60) riskColor = [234, 179, 8]; // Yellow
+      else riskColor = [239, 68, 68]; // Red
+
       doc.setTextColor(...whiteColor);
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
@@ -240,11 +249,11 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       // Progress bar
       doc.setFillColor(...slateColor);
       doc.roundedRect(box2X + 4, yPos + 24, col2Width - 12, 3, 1, 1, 'F');
-      doc.setFillColor(...cyanColor);
+      doc.setFillColor(...riskColor);
       const barWidth = (delayProb / 100) * (col2Width - 12);
       doc.roundedRect(box2X + 4, yPos + 24, barWidth, 3, 1, 1, 'F');
 
-      doc.setTextColor(...cyanColor);
+      doc.setTextColor(...riskColor);
       doc.setFontSize(8);
       doc.text(getDelayLabel(delayProb).toUpperCase(), box2X + 4, yPos + 33);
 
@@ -266,36 +275,54 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
-      doc.text(`☁ ${t.labelWeather.toUpperCase()}`, box3X + 4, yPos + 6);
+      doc.text(t.labelWeather.toUpperCase(), box3X + 4, yPos + 6);
 
       if (prediction.weather) {
         doc.setTextColor(...cyanColor);
-        doc.setFontSize(8);
-        doc.text(translateCondition(prediction.weather.condition).toUpperCase(), box3X + 4, yPos + 14);
+        doc.setFontSize(7);
+        doc.text(translateCondition(prediction.weather.condition).toUpperCase(), box3X + 4, yPos + 12);
+
+        const weatherY = yPos + 17;
+
+        // Temp
+        doc.setTextColor(...slate500);
+        doc.setFontSize(4);
+        doc.text(`🌡 ${t.labelTemp.toUpperCase()}`, box3X + 4, weatherY);
+        doc.setTextColor(...whiteColor);
+        doc.setFontSize(6);
+        doc.text(`${Math.round(prediction.weather.minTemp)}° / ${Math.round(prediction.weather.maxTemp)}°C`, box3X + 4, weatherY + 3);
+
+        // Wind
+        doc.setTextColor(...slate500);
+        doc.setFontSize(4);
+        doc.text(`🌬 ${t.labelWind.toUpperCase()}`, box3X + 4, weatherY + 8);
+        doc.setTextColor(...whiteColor);
+        doc.setFontSize(6);
+        doc.text(`${prediction.weather.windSpeed.toFixed(1)} km/h`, box3X + 4, weatherY + 11);
+
+        // Humidity & Rain
+        doc.setTextColor(...slate500);
+        doc.setFontSize(4);
+        doc.text(`💧 ${t.labelHumidity.toUpperCase()}`, box3X + 4, weatherY + 16);
+        doc.setTextColor(...whiteColor);
+        doc.setFontSize(6);
+        doc.text(`${prediction.weather.humidity}%`, box3X + 4, weatherY + 19);
 
         doc.setTextColor(...slate500);
-        doc.setFontSize(5);
-        doc.text(t.labelTemp.toUpperCase(), box3X + 4, yPos + 22);
+        doc.setFontSize(4);
+        doc.text(`🌧/🌩 ${t.rainProb.toUpperCase()}`, box3X + 4, weatherY + 24);
         doc.setTextColor(...whiteColor);
-        doc.setFontSize(7);
-        doc.text(`${Math.round(prediction.weather.minTemp)}° / ${Math.round(prediction.weather.maxTemp)}°C`, box3X + 4, yPos + 27);
+        doc.setFontSize(6);
+        doc.text(`${prediction.weather.rainProbability}%`, box3X + 4, weatherY + 27);
 
-        doc.setTextColor(...slate500);
-        doc.setFontSize(5);
-        doc.text(t.labelWind.toUpperCase(), box3X + 4, yPos + 33);
-        doc.setTextColor(...whiteColor);
-        doc.setFontSize(7);
-        doc.text(`${prediction.weather.windSpeed.toFixed(1)} km/h`, box3X + 4, yPos + 38);
-
-        doc.setTextColor(...slate500);
-        doc.setFontSize(5);
-        doc.text(t.labelHumidity.toUpperCase(), box3X + 4, yPos + 44);
-        doc.setTextColor(...whiteColor);
-        doc.setFontSize(7);
-        doc.text(`${prediction.weather.humidity}%`, box3X + 4, yPos + 49);
+        // Weather Attribution Link
+        doc.setTextColor(...cyanColor);
+        doc.setFontSize(3.5);
+        const attributionText = "Dados meteorológicos por Open-Meteo.com";
+        doc.text(attributionText, box3X + 4, yPos + 48, { url: 'https://open-meteo.com' });
       } else {
         doc.setTextColor(...slate400);
-        doc.setFontSize(7);
+        doc.setFontSize(6);
         doc.text(t.labelUnknown, box3X + 4, yPos + 20);
       }
 
@@ -325,124 +352,98 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       doc.text(analysisLines2, margin, yPos);
       yPos += analysisLines2.length * 3 + 6;
 
-      // ========== ROW 2: CHARTS (Pizza + Barras Mês) ==========
-      const chartRow1Height = 52;
-      const chart1Width = contentWidth * 0.35;
-      const chart2Width = contentWidth * 0.65;
+      // ========== ROW 2: CHARTS REORGANIZED ==========
+      // Total available height for charts is about 160-170mm
+      const chartHeight = 35; // Reduced to fit everything
+      const chartSpacing = 3;
 
-      // Chart 1: Total de voos realizados (Pizza)
+      // 1) Total de voos realizados (Pie chart - maybe use smaller width if it's too squashed)
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(margin, yPos, chart1Width - 2, chartRow1Height, 2, 2, 'F');
+      doc.roundedRect(margin, yPos, contentWidth, chartHeight, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(margin, yPos, chart1Width - 2, chartRow1Height, 2, 2, 'S');
-
-      doc.setTextColor(...cyanColor);
-      doc.setFontSize(6);
-      doc.text(`📊 ${t.labelTotalFlights}`, margin + 4, yPos + 6);
+      doc.roundedRect(margin, yPos, contentWidth, chartHeight, 2, 2, 'S');
 
       if (images.totalVoos) {
         try {
-          doc.addImage(images.totalVoos, 'PNG', margin + 4, yPos + 9, chart1Width - 10, chartRow1Height - 14);
+          // Pie charts are usually square-ish, so we center it or let it stretch if the user preferred "proportional"
+          // If we want proportional, we should ideally know the aspect ratio. 
+          // Assuming most charts are ~2:1 or wider.
+          doc.addImage(images.totalVoos, 'JPEG', margin + 30, yPos + 3, contentWidth - 60, chartHeight - 6, undefined, 'FAST');
         } catch (e) {
           doc.setTextColor(...slate400);
           doc.setFontSize(6);
-          doc.text('Gráfico indisponível', margin + 10, yPos + 30);
+          doc.text('Gráfico indisponível', margin + (contentWidth / 2), yPos + (chartHeight / 2), { align: 'center' });
         }
       }
+      yPos += chartHeight + chartSpacing;
 
-      // Chart 2: Atrasos por Mês
-      const chart2X = margin + chart1Width;
+      // 2) Atrasos por dias da semana
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(chart2X, yPos, chart2Width, chartRow1Height, 2, 2, 'F');
+      doc.roundedRect(margin, yPos, contentWidth, chartHeight, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(chart2X, yPos, chart2Width, chartRow1Height, 2, 2, 'S');
-
-      doc.setTextColor(...cyanColor);
-      doc.setFontSize(6);
-      doc.text(`📅 ${t.labelDelaysByMonth}`, chart2X + 4, yPos + 6);
-
-      if (images.atrasosMes) {
-        try {
-          doc.addImage(images.atrasosMes, 'PNG', chart2X + 4, yPos + 9, chart2Width - 10, chartRow1Height - 14);
-        } catch (e) {
-          doc.setTextColor(...slate400);
-          doc.setFontSize(6);
-          doc.text('Gráfico indisponível', chart2X + 30, yPos + 30);
-        }
-      }
-
-      yPos += chartRow1Height + 4;
-
-      // ========== ROW 3: IMPACTO SEMANAL ==========
-      const chartRow2Height = 40;
-
-      doc.setFillColor(15, 23, 42);
-      doc.roundedRect(margin, yPos, contentWidth, chartRow2Height, 2, 2, 'F');
-      doc.setDrawColor(...slateColor);
-      doc.roundedRect(margin, yPos, contentWidth, chartRow2Height, 2, 2, 'S');
-
-      doc.setTextColor(...cyanColor);
-      doc.setFontSize(6);
-      doc.text(`📈 ${t.labelWeeklyImpact}`, margin + 4, yPos + 6);
+      doc.roundedRect(margin, yPos, contentWidth, chartHeight, 2, 2, 'S');
 
       if (images.atrasosDia) {
         try {
-          doc.addImage(images.atrasosDia, 'PNG', margin + 4, yPos + 9, contentWidth - 10, chartRow2Height - 14);
+          doc.addImage(images.atrasosDia, 'JPEG', margin + 4, yPos + 2, contentWidth - 8, chartHeight - 4, undefined, 'FAST');
         } catch (e) {
           doc.setTextColor(...slate400);
           doc.setFontSize(6);
-          doc.text('Gráfico indisponível', margin + (contentWidth / 2), yPos + 25, { align: 'center' });
+          doc.text('Gráfico indisponível', margin + (contentWidth / 2), yPos + (chartHeight / 2), { align: 'center' });
         }
       }
+      yPos += chartHeight + chartSpacing;
 
-      yPos += chartRow2Height + 4;
-
-      // ========== ROW 4: FREQUÊNCIA + SEVERIDADE ==========
-      const chartRow3Height = 42;
-      const halfWidth = contentWidth / 2;
-
-      // Chart: Frequência de Atrasos por Hora
+      // 3) Atraso por hora
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(margin, yPos, halfWidth - 2, chartRow3Height, 2, 2, 'F');
+      doc.roundedRect(margin, yPos, contentWidth, chartHeight, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(margin, yPos, halfWidth - 2, chartRow3Height, 2, 2, 'S');
-
-      doc.setTextColor(...cyanColor);
-      doc.setFontSize(6);
-      doc.text(`🕐 ${t.labelDelaysByHour}`, margin + 4, yPos + 6);
+      doc.roundedRect(margin, yPos, contentWidth, chartHeight, 2, 2, 'S');
 
       if (images.atrasosHora) {
         try {
-          doc.addImage(images.atrasosHora, 'PNG', margin + 4, yPos + 9, halfWidth - 10, chartRow3Height - 14);
+          doc.addImage(images.atrasosHora, 'JPEG', margin + 4, yPos + 2, contentWidth - 8, chartHeight - 4, undefined, 'FAST');
         } catch (e) {
           doc.setTextColor(...slate400);
           doc.setFontSize(6);
-          doc.text('Gráfico indisponível', margin + 25, yPos + 25);
+          doc.text('Gráfico indisponível', margin + (contentWidth / 2), yPos + (chartHeight / 2), { align: 'center' });
         }
       }
+      yPos += chartHeight + chartSpacing;
 
-      // Chart: Média de Atraso por Hora
-      const chart4X = margin + halfWidth;
+      // 5) Duplicar a linha do terceiro gráfico (Atraso por hora)
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(chart4X, yPos, halfWidth, chartRow3Height, 2, 2, 'F');
+      doc.roundedRect(margin, yPos, contentWidth, chartHeight, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(chart4X, yPos, halfWidth, chartRow3Height, 2, 2, 'S');
+      doc.roundedRect(margin, yPos, contentWidth, chartHeight, 2, 2, 'S');
 
-      doc.setTextColor(...cyanColor);
-      doc.setFontSize(6);
-      doc.text(`⏱ ${t.labelHourlyTraffic}`, chart4X + 4, yPos + 6);
+      if (images.atrasosHora) {
+        try {
+          doc.addImage(images.atrasosHora, 'JPEG', margin + 4, yPos + 2, contentWidth - 8, chartHeight - 4, undefined, 'FAST');
+        } catch (e) {
+          doc.setTextColor(...slate400);
+          doc.setFontSize(6);
+          doc.text('Gráfico indisponível', margin + (contentWidth / 2), yPos + (chartHeight / 2), { align: 'center' });
+        }
+      }
+      yPos += chartHeight + chartSpacing;
+
+      // 6) Inserir o gráfico media atraso
+      doc.setFillColor(15, 23, 42);
+      doc.roundedRect(margin, yPos, contentWidth, chartHeight, 2, 2, 'F');
+      doc.setDrawColor(...slateColor);
+      doc.roundedRect(margin, yPos, contentWidth, chartHeight, 2, 2, 'S');
 
       if (images.mediaAtraso) {
         try {
-          doc.addImage(images.mediaAtraso, 'PNG', chart4X + 4, yPos + 9, halfWidth - 10, chartRow3Height - 14);
+          doc.addImage(images.mediaAtraso, 'JPEG', margin + 4, yPos + 2, contentWidth - 8, chartHeight - 4, undefined, 'FAST');
         } catch (e) {
           doc.setTextColor(...slate400);
           doc.setFontSize(6);
-          doc.text('Gráfico indisponível', chart4X + 25, yPos + 25);
+          doc.text('Gráfico indisponível', margin + (contentWidth / 2), yPos + (chartHeight / 2), { align: 'center' });
         }
       }
-
-      yPos += chartRow3Height + 6;
+      yPos += chartHeight + 4;
 
       // ========== FOOTER ==========
       doc.setDrawColor(...slateColor);
