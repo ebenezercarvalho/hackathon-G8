@@ -14,11 +14,11 @@ public class OpenApiConfig {
         public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                .title("✈️ FlightOnTime API")
+                .title("✈️ FlightOnTime - Backend")
                 .version("1.0.0")
                 .summary("API REST para previsão de atrasos de voos utilizando dados de machine learning.")
                 .description("""
-                        Projeto desenvolvido pela **Equipe Chronus** durante o **Hackathon G8 ONE**.
+                        Projeto desenvolvido pela **Equipe Chronos** durante o **Hackathon G8 ONE**.
 
                         ## 👥 Integrantes
 
@@ -48,8 +48,8 @@ public class OpenApiConfig {
 
                         ## 🛠️ Tecnologias
                         * Java 21
-                        * Spring Boot 3.4.0
-                        * PostgreSQL 17
+                        * Spring Boot 4.0.0
+                        * PostgreSQL 15
                         """)
                 .contact(new Contact()
                         .name("Equipe Chronus - Hackathon G8 ONE")))
