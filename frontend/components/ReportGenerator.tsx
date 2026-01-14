@@ -183,6 +183,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       // ========== ROW 1: VOO | PROBABILIDADE | CLIMA ==========
       const row1Height = 58;
+      const row1HeightSmall = 54;
       const col1Width = contentWidth * 0.42;
       const col2Width = contentWidth * 0.33;
       const col3Width = contentWidth * 0.25;
@@ -248,15 +249,15 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       // Box 2: PROBABILIDADE DE ATRASO
       const box2X = margin + col1Width;
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(box2X, yPos, col2Width - 2, row1Height, 2, 2, 'F');
+      doc.roundedRect(box2X, yPos, col2Width - 2, row1HeightSmall, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(box2X, yPos, col2Width - 2, row1Height, 2, 2, 'S');
+      doc.roundedRect(box2X, yPos, col2Width - 2, row1HeightSmall, 2, 2, 'S');
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
       doc.text(t.labelDelayProb.toUpperCase(), box2X + 4, yPos + 6);
 
-      const delayProb = 100 - prediction.confidence;
+      const delayProb = prediction.confidence;
 
       // Determine risk color based on percentage (matching frontend)
       let riskColor: [number, number, number] = [255, 255, 255];
@@ -292,9 +293,9 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
       // Box 3: CLIMA
       const box3X = margin + col1Width + col2Width;
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(box3X, yPos, col3Width, row1Height, 2, 2, 'F');
+      doc.roundedRect(box3X, yPos, col3Width, row1HeightSmall, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(box3X, yPos, col3Width, row1Height, 2, 2, 'S');
+      doc.roundedRect(box3X, yPos, col3Width, row1HeightSmall, 2, 2, 'S');
 
       doc.setTextColor(...cyanColor);
       doc.setFontSize(6);
@@ -340,7 +341,7 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
         // Weather Attribution Link
         doc.setTextColor(...cyanColor);
-        doc.setFontSize(4);
+        doc.setFontSize(5);
         const prefix = t.weatherAttribution + " ";
         const brand = "Open-Meteo.com";
         const prefixWidth = doc.getTextWidth(prefix);
@@ -357,71 +358,89 @@ const ReportGenerator: React.FC<ReportProps> = ({ flightData, prediction, lang }
 
       yPos += row1Height + 2; // Reduced from 6mm to 2mm
 
-      // ========== ANÁLISE GERAL ==========
-      doc.setDrawColor(...slateColor);
-      doc.line(margin, yPos, pageWidth - margin, yPos);
-      yPos += 2; // Reduced internal spacing from 6mm to 2mm (implied by "Antes da Análise Geral" being reduced)
-
       doc.setTextColor(...whiteColor);
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
+      // "Análise Geral" text - spans col1 + col2
+      // Start 3mm after row1
+      yPos += 3;
+
+      const analysisWidth = col1Width + col2Width - 4;
+      const startAnalysisY = yPos;
+
       doc.text(t.analyticsHeader, margin, yPos);
       yPos += 6;
 
       doc.setTextColor(...slate400);
       doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
+
       const analysisText1 = t.analysisDesc1;
-      const analysisLines1 = doc.splitTextToSize(analysisText1, contentWidth);
+      const analysisLines1 = doc.splitTextToSize(analysisText1, analysisWidth);
       doc.text(analysisLines1, margin, yPos);
       yPos += analysisLines1.length * 3 + 2;
 
       const analysisText2 = t.analysisDesc2;
-      const analysisLines2 = doc.splitTextToSize(analysisText2, contentWidth);
+      const analysisLines2 = doc.splitTextToSize(analysisText2, analysisWidth);
       doc.text(analysisLines2, margin, yPos);
-      yPos += analysisLines2.length * 3 + 2; // Reduced from +6 to +2 before Charts Row 2
+      yPos += analysisLines2.length * 3 + 2;
 
-      // ========== ROW 2: CHARTS REORGANIZED ==========
-      const row2Height = 38; // Reduced from 40mm to 38mm
-      const col1Width_row2 = 40;
-      const col2Width_row2 = 143;
-      const spacing_row2 = 2; // Reduced from 3mm to 2mm
+      // Calculate the height used by text to know where to continue later, 
+      // but we need to place the chart in parallel.
+      const textEndY = yPos;
 
-      // 1) Total de voos realizados (Pie Chart) - LHS
+      // Column 3: Total Flights Chart (Square, same width as Weather box) (moved from below)
+      // Position: Same Y as "Análise Geral" header start (approximately) or aligned top
+      const chartSquareSize = col3Width;
+      const col3X = margin + col1Width + col2Width;
+
+      // We align the chart top with the start of Analysis text section (startAnalysisY)
+      // but let's give it a container
+      const totalVoosY = startAnalysisY;
+
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(margin, yPos, col1Width_row2, row2Height, 2, 2, 'F');
+      doc.roundedRect(col3X, totalVoosY, chartSquareSize, chartSquareSize, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(margin, yPos, col1Width_row2, row2Height, 2, 2, 'S');
+      doc.roundedRect(col3X, totalVoosY, chartSquareSize, chartSquareSize, 2, 2, 'S');
 
       if (images.totalVoos) {
         try {
-          doc.addImage(images.totalVoos, 'JPEG', margin + 2, yPos + 2, col1Width_row2 - 4, row2Height - 4, undefined, 'FAST');
+          doc.addImage(images.totalVoos, 'JPEG', col3X + 2, totalVoosY + 2, chartSquareSize - 4, chartSquareSize - 4, undefined, 'FAST');
         } catch (e) {
           doc.setTextColor(...slate400);
           doc.setFontSize(6);
-          doc.text(t.chartUnavailableShort, margin + col1Width_row2 / 2, yPos + row2Height / 2, { align: 'center' });
+          doc.text(t.chartUnavailableShort, col3X + chartSquareSize / 2, totalVoosY + chartSquareSize / 2, { align: 'center' });
         }
       }
 
-      // 2) Atrasos por dias da semana (Bar Chart) - RHS
-      const col2X = margin + col1Width_row2 + spacing_row2;
+      // Update yPos to be below the tallest element (Text or Chart)
+      // Add some buffer
+      yPos = Math.max(textEndY, totalVoosY + chartSquareSize) + 5;
+
+      // ========== ROW 2: Atrasos por dias da semana (Moved here) ==========
+      // "ajustar esse gráfico para o início da linha..."
+      // We'll make it full width or substantial width to fit "10, 6.5" ratio 
+      // Ratio 10:6.5 is roughly 1.53:1
+      const chartDiaWidth = 140; // width in mm
+      const chartDiaHeight = chartDiaWidth / 1.53;
+
       doc.setFillColor(15, 23, 42);
-      doc.roundedRect(col2X, yPos, col2Width_row2, row2Height, 2, 2, 'F');
+      doc.roundedRect(margin, yPos, chartDiaWidth, chartDiaHeight, 2, 2, 'F');
       doc.setDrawColor(...slateColor);
-      doc.roundedRect(col2X, yPos, col2Width_row2, row2Height, 2, 2, 'S');
+      doc.roundedRect(margin, yPos, chartDiaWidth, chartDiaHeight, 2, 2, 'S');
 
       if (images.atrasosDia) {
         try {
-          doc.addImage(images.atrasosDia, 'JPEG', col2X + 2, yPos + 2, col2Width_row2 - 4, row2Height - 4, undefined, 'FAST');
+          doc.addImage(images.atrasosDia, 'JPEG', margin + 2, yPos + 2, chartDiaWidth - 4, chartDiaHeight - 4, undefined, 'FAST');
         } catch (e) {
           doc.setTextColor(...slate400);
           doc.setFontSize(6);
-          doc.text(t.chartUnavailable, col2X + col2Width_row2 / 2, yPos + row2Height / 2, { align: 'center' });
+          doc.text(t.chartUnavailable, margin + chartDiaWidth / 2, yPos + chartDiaHeight / 2, { align: 'center' });
         }
       }
-      yPos += row2Height + spacing_row2;
+      yPos += chartDiaHeight + 2;
 
-      const chartSpacing = 2; // Reduced from 3mm to 2mm
+      const chartSpacing = 2;
 
       // ========== ROW 3: Atraso por hora (Full Width) ==========
       const chart3Height = 58.1; // Increased to Ideal Height
