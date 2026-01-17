@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, Loader2 } from 'lucide-react';
 import { translations, Language } from '../translations';
+import { useToast } from '../context/ToastContext';
 
 interface Option {
   nome: string;
@@ -23,6 +24,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, value, onChange, label, lang }) => {
   const t = translations[lang];
+  const { showToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [options, setOptions] = useState<Option[]>([]);
@@ -50,17 +52,31 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ endpoint, placeholder, valu
     setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/autocomplete/${endpoint}?termo=${encodeURIComponent(term)}`);
-      if (response.ok) {
-        const data = await response.json();
-        // Map 'none' to 'nome' if the backend has the typo seen in Swagger
-        const mappedData = data.map((item: any) => ({
-          ...item,
-          nome: item.none !== undefined ? item.none : item.nome
-        }));
-        setOptions(mappedData);
+      
+      if (!response.ok) {
+        throw { status: response.status };
       }
-    } catch (error) {
+
+      const data = await response.json();
+      // Map 'none' to 'nome' if the backend has the typo seen in Swagger
+      const mappedData = data.map((item: any) => ({
+        ...item,
+        nome: item.none !== undefined ? item.none : item.nome
+      }));
+      setOptions(mappedData);
+    } catch (error: any) {
       console.error('Error fetching autocomplete options:', error);
+      
+      if (error?.status === 502) {
+        showToast(t.error502, 'error');
+      } else if (error?.status === 500) {
+        showToast(t.error500, 'error');
+      } else {
+        // Fallback for other errors (like network connection refused which returns boolean ok=false in some fetch wrappers but fetch throws TyperError on network failure)
+        // Native fetch throws TypeError on network failure (DNS, etc), but returns response object with ok:false for 4xx/5xx
+        // So we might catch TypeError here too.
+        showToast(t.error500, 'error');
+      }
     } finally {
       setLoading(false);
     }
