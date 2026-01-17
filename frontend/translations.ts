@@ -2,7 +2,7 @@ export type Language = 'en' | 'pt' | 'es';
 
 export const translations = {
   en: {
-    title: "FllightOnTime",
+    title: "FlightOnTime",
     subtitle: "Flight Delay Prediction System",
     routing: "Routing & Company",
     origin: "Origin Airport",
@@ -95,7 +95,7 @@ export const translations = {
     chartUnavailableShort: "N/A"
   },
   pt: {
-    title: "FllightOnTime",
+    title: "FlightOnTime",
     subtitle: "Sistema de Predição de Atrasos de Voos",
     routing: "Rota e Companhia",
     origin: "Aeroporto de Origem",
@@ -188,7 +188,7 @@ export const translations = {
     chartUnavailableShort: "Indisp."
   },
   es: {
-    title: "FllightOnTime",
+    title: "FlightOnTime",
     subtitle: "Sistema de Predicción de Retrasos de Vuelos",
     routing: "Ruta y Compañía",
     origin: "Aeropuerto de Origen",
